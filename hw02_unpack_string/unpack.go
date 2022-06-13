@@ -1,10 +1,11 @@
 package hw02unpackstring
 
 import (
-	"errors"
 	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/pkg/errors"
 )
 
 var ErrInvalidString = errors.New("invalid string")
@@ -34,7 +35,7 @@ func Unpack(encoded string) (string, error) {
 
 			dig, err := strconv.Atoi(string(x))
 			if err != nil {
-				return "", ErrInvalidString
+				return "", errors.Wrap(ErrInvalidString, err.Error())
 			}
 
 			decoded.WriteString(strings.Repeat(last, dig))
