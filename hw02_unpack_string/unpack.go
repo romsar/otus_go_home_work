@@ -17,15 +17,15 @@ func Unpack(encoded string) (string, error) {
 
 	var decoded strings.Builder
 	var last string
-	var escape bool
+	var escaping bool
 
 	for _, x := range encoded {
 		cur := string(x)
 
 		if unicode.IsDigit(x) {
-			if escape {
+			if escaping {
 				last = cur
-				escape = false
+				escaping = false
 				continue
 			}
 
@@ -33,7 +33,7 @@ func Unpack(encoded string) (string, error) {
 				return "", ErrInvalidString
 			}
 
-			dig, err := strconv.Atoi(string(x))
+			dig, err := strconv.Atoi(cur)
 			if err != nil {
 				return "", errors.Wrap(ErrInvalidString, err.Error())
 			}
@@ -41,25 +41,28 @@ func Unpack(encoded string) (string, error) {
 			decoded.WriteString(strings.Repeat(last, dig))
 
 			last = ""
+			escaping = false
+
 			continue
 		}
 
-		if last != "" && !escape {
+		if last != "" && !escaping {
 			decoded.WriteString(last)
 		}
 
-		if cur == `\` {
-			if !escape {
-				escape = true
-				continue
-			}
-			escape = false
+		isBackSlash := cur == `\`
+
+		if escaping && !isBackSlash {
+			last = `\` + cur
+			escaping = false
+			continue
 		}
 
+		escaping = !escaping && isBackSlash
 		last = cur
 	}
 
-	if last != "" && !escape {
+	if last != "" && !escaping {
 		decoded.WriteString(last)
 	}
 
