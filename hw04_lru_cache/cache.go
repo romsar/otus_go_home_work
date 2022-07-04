@@ -7,8 +7,8 @@ type Key string
 type Cache interface {
 	sync.Locker
 
-	Set(key Key, value any) bool
-	Get(key Key) (any, bool)
+	Set(key Key, value interface{}) bool
+	Get(key Key) (interface{}, bool)
 	Clear()
 }
 
@@ -20,7 +20,7 @@ type lruCache struct {
 	items    map[Key]*ListItem
 }
 
-func (c *lruCache) Set(key Key, value any) bool {
+func (c *lruCache) Set(key Key, value interface{}) bool {
 	ci := &cacheItem{
 		key:   key,
 		value: value,
@@ -48,7 +48,7 @@ func (c *lruCache) Set(key Key, value any) bool {
 	return false
 }
 
-func (c *lruCache) Get(key Key) (any, bool) {
+func (c *lruCache) Get(key Key) (interface{}, bool) {
 	c.Lock()
 	defer c.Unlock()
 	val, ok := c.items[key]
@@ -78,7 +78,7 @@ func (c *lruCache) Clear() {
 
 type cacheItem struct {
 	key   Key
-	value any
+	value interface{}
 }
 
 func NewCache(capacity int) Cache {
