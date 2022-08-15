@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -27,7 +28,7 @@ func TestCopy(t *testing.T) {
 
 	for _, tcase := range cases {
 		t.Run(tcase.name, func(t *testing.T) {
-			err := os.WriteFile(tmpFrom, []byte(tcase.text), 0755)
+			err := os.WriteFile(tmpFrom, []byte(tcase.text), 0o755)
 			require.NoError(t, err)
 
 			err = Copy(

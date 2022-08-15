@@ -3,10 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/cheggaaa/pb/v3"
 	"io"
 	"log"
 	"os"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 var (
@@ -66,7 +67,7 @@ func Copy(fromPath, toPath string, offset, limit int64) (err error) {
 
 		n, err := io.CopyN(out, in, size)
 
-		eof := err == io.EOF
+		eof := errors.Is(err, io.EOF)
 
 		if err != nil && !eof {
 			return wrapErr(err)
@@ -94,8 +95,7 @@ func wrapErr(err error) error {
 }
 
 func doClose(closer io.Closer) {
-	err := closer.Close()
-	if err != nil {
+	if err := closer.Close(); err != nil {
 		log.Println("error while close: ", err)
 	}
 }
