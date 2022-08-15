@@ -48,7 +48,7 @@ func Copy(fromPath, toPath string, offset, limit int64) (err error) {
 	defer doClose(out)
 
 	if _, err = in.Seek(offset, io.SeekStart); err != nil {
-		log.Fatal(err)
+		return wrapErr(err)
 	}
 
 	total := calculateTotal(fromSize, offset)
