@@ -17,7 +17,7 @@ func TestRunCmd(t *testing.T) {
 		want int
 	}{
 		{"basic test", args{
-			cmd:  []string{"time"},
+			cmd:  []string{"true"},
 			envs: Environment{},
 		}, 0},
 		{"bad code test", args{
