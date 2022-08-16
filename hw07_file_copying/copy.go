@@ -16,7 +16,7 @@ var (
 )
 
 const (
-	chunkSize int64 = 1
+	chunkSize int64 = 100
 )
 
 func Copy(fromPath, toPath string, offset, limit int64) (err error) {
@@ -53,7 +53,7 @@ func Copy(fromPath, toPath string, offset, limit int64) (err error) {
 
 	total := calculateTotal(fromSize, offset)
 
-	if limit == 0 {
+	if limit == 0 || limit > total {
 		limit = total
 	}
 
