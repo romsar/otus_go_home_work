@@ -1,4 +1,4 @@
-module github.com/fixme_my_friend/hw07_file_copying
+module github.com/RomanSarvarov/otus_go_home_work/hw07_file_copying
 
 go 1.16
 
