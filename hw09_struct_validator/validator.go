@@ -82,7 +82,7 @@ func Validate(v interface{}) error {
 		}
 	}
 
-	if hasValidationErrors(ve) {
+	if !hasValidationErrors(ve) {
 		return nil
 	}
 
@@ -150,7 +150,7 @@ func validationRules(rules string) []string {
 }
 
 func hasValidationErrors(ve ValidationErrors) bool {
-	return len(ve) == 0
+	return len(ve) > 0
 }
 
 func isIterable(kind reflect.Kind) bool {
