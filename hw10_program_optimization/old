@@ -1,0 +1,6 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/RomanSarvarov/otus_go_home_work/hw10_program_optimization
+BenchmarkGetDomainStat-8   	      15	  76816753 ns/op	134444917 B/op	 1700082 allocs/op
+PASS
+ok  	github.com/RomanSarvarov/otus_go_home_work/hw10_program_optimization	3.038s
