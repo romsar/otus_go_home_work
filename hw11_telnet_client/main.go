@@ -43,8 +43,6 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 			return
 		}
-
-		fmt.Fprintln(os.Stdout, "...EOF")
 	}()
 
 	go func() {
