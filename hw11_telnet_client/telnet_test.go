@@ -75,6 +75,8 @@ func TestTelnetClient(t *testing.T) {
 		require.NoError(t, err)
 
 		client := NewTelnetClient(l.Addr().String(), timeout, ioutil.NopCloser(in), out)
-		require.Errorf(t, client.Connect(), "go-telnet connect: dial tcp 127.0.0.1:52180: i/o timeout")
+
+		expectedErrorMsg := "go-telnet connect: dial tcp " + l.Addr().String() + ": i/o timeout"
+		require.EqualErrorf(t, client.Connect(), expectedErrorMsg, "Error should be: %v, got: %v", expectedErrorMsg, err)
 	})
 }
