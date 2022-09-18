@@ -6,7 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // postgres support
 	"github.com/pkg/errors"
-	"github.com/pressly/goose/v3"
+	goose "github.com/pressly/goose/v3"
 )
 
 // Key обозначает ключ postgres БД драйвера.
