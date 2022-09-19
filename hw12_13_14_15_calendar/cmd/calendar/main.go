@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
@@ -15,7 +14,6 @@ import (
 	"github.com/rs/zerolog/log"
 	flag "github.com/spf13/pflag"
 
-	"github.com/RomanSarvarov/otus_go_home_work/calendar"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/api/rest"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/inmem"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/pkg/closer"
@@ -112,16 +110,6 @@ func run(config *Config) error {
 		}
 
 		restModel = repo
-
-		events, err := repo.FindEvents(ctx, calendar.EventFilter{
-			From: time.Now(),
-		})
-
-		if len(events) > 0 {
-			fmt.Println(*events[0], err)
-		} else {
-			fmt.Println("empty")
-		}
 	default:
 		return fmt.Errorf("database driver `%s` not found", config.DBDriver)
 	}

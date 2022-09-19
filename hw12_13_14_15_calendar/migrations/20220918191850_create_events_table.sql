@@ -8,7 +8,7 @@ create table events
     title                 varchar(255) not null,
     description           text,
     start_at              timestamp    not null,
-    duration              bigint      not null,
+    end_at                timestamp      not null,
     user_id               uuid         not null,
     notification_duration bigint
 );
@@ -16,8 +16,8 @@ create table events
 alter table events
     owner to calendar;
 
-create index events_user_id_start_at_duration_index
-    on events (user_id, start_at, duration);
+create index events_user_id_start_at_end_at_index
+    on events (user_id, start_at, end_at);
 -- +goose StatementEnd
 
 -- +goose Down

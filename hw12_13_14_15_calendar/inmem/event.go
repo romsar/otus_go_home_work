@@ -11,6 +11,10 @@ import (
 
 // CreateEvent создает событие.
 func (repo *Repository) CreateEvent(ctx context.Context, e *calendar.Event) (*calendar.Event, error) {
+	if err := repo.checkDateBusy(e); err != nil {
+		return nil, errors.Wrap(err, "create event")
+	}
+
 	e.ID = uuid.New()
 
 	repo.events[e.ID] = e
@@ -21,6 +25,10 @@ func (repo *Repository) CreateEvent(ctx context.Context, e *calendar.Event) (*ca
 // UpdateEvent обновляет событие.
 func (repo *Repository) UpdateEvent(ctx context.Context, id uuid.UUID, e *calendar.Event) (*calendar.Event, error) {
 	if _, err := repo.findEventByID(id); err != nil {
+		return nil, errors.Wrap(err, "update event")
+	}
+
+	if err := repo.checkDateBusy(e); err != nil {
 		return nil, errors.Wrap(err, "update event")
 	}
 
@@ -86,9 +94,30 @@ func passFilter(e *calendar.Event, filter calendar.EventFilter) bool {
 		return false
 	}
 
-	if !filter.To.IsZero() && filter.To.After(e.StartAt.Add(e.Duration)) {
+	if !filter.To.IsZero() && filter.To.After(e.EndAt) {
 		return false
 	}
 
 	return true
+}
+
+// checkDateBusy проверка на свободное время.
+// Если время занято, то вернет ошибку calendar.ErrDateBusy.
+func (repo *Repository) checkDateBusy(event *calendar.Event) error {
+	for _, e := range repo.events {
+		if e.UserID != event.UserID {
+			continue
+		}
+
+		if (e.StartAt.After(event.StartAt) || e.StartAt.Equal(event.StartAt)) &&
+			e.StartAt.Before(event.EndAt) {
+			return calendar.ErrDateBusy
+		}
+
+		if e.EndAt.After(event.StartAt) && (e.EndAt.Before(event.EndAt) || e.EndAt.Equal(event.EndAt)) {
+			return calendar.ErrDateBusy
+		}
+	}
+
+	return nil
 }

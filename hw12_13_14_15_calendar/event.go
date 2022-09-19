@@ -20,8 +20,8 @@ type Event struct {
 	// StartAt дата и время начала события.
 	StartAt time.Time `db:"start_at"`
 
-	// Duration длительность события.
-	Duration time.Duration `db:"duration"`
+	// EndAt дата и время окончания события.
+	EndAt time.Time `db:"end_at"`
 
 	// UserID идентификатор пользователя (владельца события).
 	UserID uuid.UUID `db:"user_id"`

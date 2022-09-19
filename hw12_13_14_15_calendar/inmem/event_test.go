@@ -23,8 +23,8 @@ func TestEventStorage_CreateEvent(t *testing.T) {
 		title := "foo"
 		descr := "bar"
 		userID := uuid.New()
-		startAt, _ := time.Parse("2006-01-02", "2022-12-05")
-		duration := 30 * time.Second
+		startAt := mustParseDateTime("2022-12-05 10:00:00")
+		endAt := mustParseDateTime("2022-12-05 10:00:30")
 		notificationDuration := 10 * time.Hour
 
 		event, err := repo.CreateEvent(ctx, &calendar.Event{
@@ -32,7 +32,7 @@ func TestEventStorage_CreateEvent(t *testing.T) {
 			Title:                title,
 			Description:          descr,
 			StartAt:              startAt,
-			Duration:             duration,
+			EndAt:                endAt,
 			UserID:               userID,
 			NotificationDuration: notificationDuration,
 		})
@@ -45,7 +45,7 @@ func TestEventStorage_CreateEvent(t *testing.T) {
 		require.Equal(t, title, event.Title)
 		require.Equal(t, descr, event.Description)
 		require.Equal(t, startAt, event.StartAt)
-		require.Equal(t, duration, event.Duration)
+		require.Equal(t, endAt, event.EndAt)
 		require.Equal(t, userID, event.UserID)
 		require.Equal(t, notificationDuration, event.NotificationDuration)
 
@@ -76,15 +76,15 @@ func TestEventStorage_UpdateEvent(t *testing.T) {
 		title := "foo"
 		descr := "bar"
 		userID := uuid.New()
-		startAt, _ := time.Parse("2006-01-02", "2022-12-05")
-		duration := 30 * time.Second
+		startAt := mustParseDateTime("2022-12-05 10:00:00")
+		endAt := mustParseDateTime("2022-12-05 10:00:30")
 		notificationDuration := 10 * time.Hour
 
 		event, err = repo.UpdateEvent(ctx, id, &calendar.Event{
 			Title:                title,
 			Description:          descr,
 			StartAt:              startAt,
-			Duration:             duration,
+			EndAt:                endAt,
 			UserID:               userID,
 			NotificationDuration: notificationDuration,
 		})
@@ -97,7 +97,7 @@ func TestEventStorage_UpdateEvent(t *testing.T) {
 		require.Equal(t, title, event.Title)
 		require.Equal(t, descr, event.Description)
 		require.Equal(t, startAt, event.StartAt)
-		require.Equal(t, duration, event.Duration)
+		require.Equal(t, endAt, event.EndAt)
 		require.Equal(t, userID, event.UserID)
 		require.Equal(t, notificationDuration, event.NotificationDuration)
 
@@ -164,15 +164,15 @@ func TestEventStorage_FindEvents(t *testing.T) {
 		title := "foo"
 		descr := "bar"
 		userID := uuid.New()
-		startAt, _ := time.Parse("2006-01-02", "2022-12-05")
-		duration := 30 * time.Second
+		startAt := mustParseDateTime("2022-12-05 10:00:00")
+		endAt := mustParseDateTime("2022-12-05 10:00:30")
 		notificationDuration := 10 * time.Hour
 
 		event, err := repo.CreateEvent(ctx, &calendar.Event{
 			Title:                title,
 			Description:          descr,
 			StartAt:              startAt,
-			Duration:             duration,
+			EndAt:                endAt,
 			UserID:               userID,
 			NotificationDuration: notificationDuration,
 		})
@@ -188,7 +188,7 @@ func TestEventStorage_FindEvents(t *testing.T) {
 		require.Equal(t, title, events[0].Title)
 		require.Equal(t, descr, events[0].Description)
 		require.Equal(t, startAt, events[0].StartAt)
-		require.Equal(t, duration, events[0].Duration)
+		require.Equal(t, endAt, events[0].EndAt)
 		require.Equal(t, userID, events[0].UserID)
 		require.Equal(t, notificationDuration, events[0].NotificationDuration)
 	})
@@ -275,19 +275,11 @@ func TestEventStorage_FindEvents(t *testing.T) {
 				name: "to match",
 				args: args{
 					event: calendar.Event{
-						StartAt: func() time.Time {
-							date, err := time.Parse("2006-01-02 15:04:05", "2022-05-10 15:20:30")
-							require.NoError(t, err)
-							return date
-						}(),
-						Duration: 30 * time.Minute,
+						StartAt: mustParseDateTime("2022-05-10 15:20:30"),
+						EndAt:   mustParseDateTime("2022-05-10 15:50:30"),
 					},
 					filter: calendar.EventFilter{
-						To: func() time.Time {
-							date, err := time.Parse("2006-01-02 15:04:05", "2022-05-10 15:50:30")
-							require.NoError(t, err)
-							return date
-						}(),
+						To: mustParseDateTime("2022-05-10 15:50:30"),
 					},
 				},
 				found: true,
@@ -296,19 +288,11 @@ func TestEventStorage_FindEvents(t *testing.T) {
 				name: "to skip",
 				args: args{
 					event: calendar.Event{
-						StartAt: func() time.Time {
-							date, err := time.Parse("2006-01-02 15:04:05", "2022-05-10 15:20:30")
-							require.NoError(t, err)
-							return date
-						}(),
-						Duration: 30 * time.Minute,
+						StartAt: mustParseDateTime("2022-05-10 15:20:30"),
+						EndAt:   mustParseDateTime("2022-05-10 15:50:30"),
 					},
 					filter: calendar.EventFilter{
-						To: func() time.Time {
-							date, err := time.Parse("2006-01-02 15:04:05", "2022-05-10 15:50:31")
-							require.NoError(t, err)
-							return date
-						}(),
+						To: mustParseDateTime("2022-05-10 15:50:31"),
 					},
 				},
 				found: false,
@@ -345,15 +329,15 @@ func TestEventStorage_FindEvent(t *testing.T) {
 		title := "foo"
 		descr := "bar"
 		userID := uuid.New()
-		startAt, _ := time.Parse("2006-01-02", "2022-12-05")
-		duration := 30 * time.Second
+		startAt := mustParseDateTime("2022-12-05 10:00:00")
+		endAt := mustParseDateTime("2022-12-05 10:00:30")
 		notificationDuration := 10 * time.Hour
 
 		event, err := repo.CreateEvent(ctx, &calendar.Event{
 			Title:                title,
 			Description:          descr,
 			StartAt:              startAt,
-			Duration:             duration,
+			EndAt:                endAt,
 			UserID:               userID,
 			NotificationDuration: notificationDuration,
 		})
@@ -369,7 +353,7 @@ func TestEventStorage_FindEvent(t *testing.T) {
 		require.Equal(t, title, event.Title)
 		require.Equal(t, descr, event.Description)
 		require.Equal(t, startAt, event.StartAt)
-		require.Equal(t, duration, event.Duration)
+		require.Equal(t, endAt, event.EndAt)
 		require.Equal(t, userID, event.UserID)
 		require.Equal(t, notificationDuration, event.NotificationDuration)
 	})
@@ -385,4 +369,108 @@ func TestEventStorage_FindEvent(t *testing.T) {
 		require.Nil(t, event)
 		require.ErrorIs(t, err, calendar.ErrNotFound)
 	})
+}
+
+func TestRepository_checkDateBusy(t *testing.T) {
+	tests := []struct {
+		name    string
+		events  []*calendar.Event
+		wantErr error
+	}{
+		{
+			name: "other event end when needle event begin",
+			events: []*calendar.Event{
+				{
+					StartAt: mustParseDateTime("2022-05-10 14:50:00"),
+					EndAt:   mustParseDateTime("2022-05-10 15:00:00"),
+					UserID:  uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "other event end after needle event begin",
+			events: []*calendar.Event{
+				{
+					StartAt: mustParseDateTime("2022-05-10 14:50:00"),
+					EndAt:   mustParseDateTime("2022-05-10 15:00:01"),
+					UserID:  uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
+				},
+			},
+			wantErr: calendar.ErrDateBusy,
+		},
+		{
+			name: "other event begin after needle event end",
+			events: []*calendar.Event{
+				{
+					StartAt: mustParseDateTime("2022-05-10 15:30:00"),
+					EndAt:   mustParseDateTime("2022-05-10 16:00:00"),
+					UserID:  uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "other event begin before needle event end",
+			events: []*calendar.Event{
+				{
+					StartAt: mustParseDateTime("2022-05-10 15:29:59"),
+					EndAt:   mustParseDateTime("2022-05-10 15:59:59"),
+					UserID:  uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
+				},
+			},
+			wantErr: calendar.ErrDateBusy,
+		},
+		{
+			name: "other event begin inside needle event",
+			events: []*calendar.Event{
+				{
+					StartAt: mustParseDateTime("2022-05-10 15:20:00"),
+					EndAt:   mustParseDateTime("2022-05-10 15:21:00"),
+					UserID:  uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
+				},
+			},
+			wantErr: calendar.ErrDateBusy,
+		},
+		{
+			name: "other user",
+			events: []*calendar.Event{
+				{
+					StartAt: mustParseDateTime("2022-05-10 15:20:00"),
+					EndAt:   mustParseDateTime("2022-05-10 15:21:00"),
+					UserID:  uuid.New(),
+				},
+			},
+			wantErr: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
+			repo := New()
+
+			for _, e := range tt.events {
+				_, err := repo.CreateEvent(ctx, e)
+				require.NoError(t, err)
+			}
+
+			event := &calendar.Event{
+				StartAt: mustParseDateTime("2022-05-10 15:00:00"),
+				EndAt:   mustParseDateTime("2022-05-10 15:30:00"),
+				UserID:  uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
+			}
+
+			err := repo.checkDateBusy(event)
+
+			require.ErrorIs(t, tt.wantErr, err)
+		})
+	}
+}
+
+func mustParseDateTime(str string) time.Time {
+	dt, err := time.Parse("2006-01-02 15:04:05", str)
+	if err != nil {
+		panic(err)
+	}
+	return dt
 }

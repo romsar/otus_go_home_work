@@ -14,13 +14,17 @@ import (
 
 // CreateEvent создать событие.
 func (repo *Repository) CreateEvent(ctx context.Context, e *calendar.Event) (*calendar.Event, error) {
+	if err := repo.checkDateBusy(ctx, e); err != nil {
+		return nil, errors.Wrap(err, "create event")
+	}
+
 	e.ID = uuid.New()
 
 	event := new(calendar.Event)
 	err := repo.db.QueryRowxContext(
 		ctx,
-		`INSERT INTO events (id, title, description, duration, user_id, start_at, notification_duration) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`, //nolint:lll
-		e.ID, e.Title, e.Description, e.Duration, e.UserID, e.StartAt, e.NotificationDuration,
+		`INSERT INTO events (id, title, description, start_at, end_at, user_id, notification_duration) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`, //nolint:lll
+		e.ID, e.Title, e.Description, e.StartAt, e.EndAt, e.UserID, e.NotificationDuration,
 	).StructScan(event)
 	if err != nil {
 		return nil, errors.Wrap(err, "create event")
@@ -35,11 +39,15 @@ func (repo *Repository) UpdateEvent(ctx context.Context, id uuid.UUID, e *calend
 		return nil, errors.Wrap(err, "update event")
 	}
 
+	if err := repo.checkDateBusy(ctx, e); err != nil {
+		return nil, errors.Wrap(err, "update event")
+	}
+
 	event := new(calendar.Event)
 	err := repo.db.QueryRowxContext(
 		ctx,
-		`UPDATE events SET title = $1, description = $2, duration = $3, user_id = $4, start_at = $5, notification_duration = $6 WHERE id = $7 RETURNING *;`, //nolint:lll
-		e.Title, e.Description, e.Duration, e.UserID, e.StartAt, e.NotificationDuration, id,
+		`UPDATE events SET title = $1, description = $2, start_at = $3, end_at = $4, user_id = $5, notification_duration = $6 WHERE id = $7 RETURNING *;`, //nolint:lll
+		e.Title, e.Description, e.StartAt, e.EndAt, e.UserID, e.NotificationDuration, id,
 	).StructScan(event)
 	if err != nil {
 		return nil, errors.Wrap(err, "update event")
@@ -77,8 +85,8 @@ func (repo *Repository) FindEvents(ctx context.Context, filter calendar.EventFil
 	}
 
 	if !filter.To.IsZero() {
-		where, args = append(where, `start_at + duration * interval '1 second' / 1000000000 <= $`+strconv.Itoa(counter)), append(args, filter.To) // nolint:lll
-		counter++                                                                                                                                 //nolint:ineffassign,wastedassign,lll
+		where, args = append(where, `end_at <= $`+strconv.Itoa(counter)), append(args, filter.To)
+		counter++ //nolint:ineffassign,wastedassign
 	}
 
 	events := make([]*calendar.Event, 0)
@@ -119,4 +127,31 @@ func (repo *Repository) findEventByID(ctx context.Context, id uuid.UUID) (*calen
 	}
 
 	return event, nil
+}
+
+// checkDateBusy проверка на свободное время.
+// Если время занято, то вернет ошибку calendar.ErrDateBusy.
+func (repo *Repository) checkDateBusy(ctx context.Context, event *calendar.Event) error {
+	query := `
+			SELECT count(*) AS count
+			FROM events
+			WHERE user_id = $1
+			  AND id != $2
+			  AND ((start_at >= $3 AND start_at < $4) OR (end_at > $3 AND end_at <= $4))
+		`
+
+	var count int
+	err := repo.db.QueryRowContext(
+		ctx, query, event.UserID, event.ID,
+		event.StartAt, event.EndAt,
+	).Scan(&count)
+	if err != nil {
+		return errors.Wrap(err, "check date busy")
+	}
+
+	if count > 0 {
+		return calendar.ErrDateBusy
+	}
+
+	return nil
 }
