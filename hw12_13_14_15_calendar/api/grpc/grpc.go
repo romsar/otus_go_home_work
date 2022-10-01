@@ -27,7 +27,7 @@ func New(m calendar.Model) Server {
 var _ event.EventServiceServer = (*Server)(nil)
 
 func (s Server) CreateEventV1(ctx context.Context, req *event.CreateEventRequestV1) (*event.EventReplyV1, error) {
-	userID, err := uuid.Parse(req.Event.UserUuid)
+	userID, err := uuid.Parse(req.Event.UserId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user uuid")
 	}
@@ -55,14 +55,14 @@ func (s Server) CreateEventV1(ctx context.Context, req *event.CreateEventRequest
 			Description:          e.Description,
 			StartAt:              e.StartAt.Unix(),
 			EndAt:                e.EndAt.Unix(),
-			UserUuid:             e.UserID.String(),
+			UserId:               e.UserID.String(),
 			NotificationDuration: e.NotificationDuration,
 		},
 	}, nil
 }
 
 func (s Server) UpdateEventV1(ctx context.Context, req *event.UpdateEventRequestV1) (*event.EventReplyV1, error) {
-	userID, err := uuid.Parse(req.Event.UserUuid)
+	userID, err := uuid.Parse(req.Event.UserId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user uuid")
 	}
@@ -95,7 +95,7 @@ func (s Server) UpdateEventV1(ctx context.Context, req *event.UpdateEventRequest
 			Description:          e.Description,
 			StartAt:              e.StartAt.Unix(),
 			EndAt:                e.EndAt.Unix(),
-			UserUuid:             e.UserID.String(),
+			UserId:               e.UserID.String(),
 			NotificationDuration: e.NotificationDuration,
 		},
 	}, nil
@@ -116,8 +116,8 @@ func (s Server) DeleteEventV1(ctx context.Context, req *event.DeleteEventRequest
 	}, nil
 }
 
-func (s Server) GetEventsForDayV1(ctx context.Context, req *event.GetForDayRequestV1) (*event.EventsReplyV1, error) {
-	userID, err := uuid.Parse(req.UserUuid)
+func (s Server) GetEventsForDayV1(ctx context.Context, req *event.GetEventsForDayRequestV1) (*event.EventsReplyV1, error) {
+	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user uuid")
 	}
@@ -148,7 +148,7 @@ func (s Server) GetEventsForDayV1(ctx context.Context, req *event.GetForDayReque
 			Description:          e.Description,
 			StartAt:              e.StartAt.Unix(),
 			EndAt:                e.EndAt.Unix(),
-			UserUuid:             e.UserID.String(),
+			UserId:               e.UserID.String(),
 			NotificationDuration: e.NotificationDuration,
 		})
 	}
@@ -158,8 +158,8 @@ func (s Server) GetEventsForDayV1(ctx context.Context, req *event.GetForDayReque
 	}, nil
 }
 
-func (s Server) GetEventsForWeekV1(ctx context.Context, req *event.GetForWeekRequestV1) (*event.EventsReplyV1, error) {
-	userID, err := uuid.Parse(req.UserUuid)
+func (s Server) GetEventsForWeekV1(ctx context.Context, req *event.GetEventsForWeekRequestV1) (*event.EventsReplyV1, error) {
+	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user uuid")
 	}
@@ -190,7 +190,7 @@ func (s Server) GetEventsForWeekV1(ctx context.Context, req *event.GetForWeekReq
 			Description:          e.Description,
 			StartAt:              e.StartAt.Unix(),
 			EndAt:                e.EndAt.Unix(),
-			UserUuid:             e.UserID.String(),
+			UserId:               e.UserID.String(),
 			NotificationDuration: e.NotificationDuration,
 		})
 	}
@@ -200,8 +200,8 @@ func (s Server) GetEventsForWeekV1(ctx context.Context, req *event.GetForWeekReq
 	}, nil
 }
 
-func (s Server) GetEventsForMonthV1(ctx context.Context, req *event.GetForMonthRequestV1) (*event.EventsReplyV1, error) {
-	userID, err := uuid.Parse(req.UserUuid)
+func (s Server) GetEventsForMonthV1(ctx context.Context, req *event.GetEventsForMonthRequestV1) (*event.EventsReplyV1, error) {
+	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user uuid")
 	}
@@ -232,7 +232,7 @@ func (s Server) GetEventsForMonthV1(ctx context.Context, req *event.GetForMonthR
 			Description:          e.Description,
 			StartAt:              e.StartAt.Unix(),
 			EndAt:                e.EndAt.Unix(),
-			UserUuid:             e.UserID.String(),
+			UserId:               e.UserID.String(),
 			NotificationDuration: e.NotificationDuration,
 		})
 	}

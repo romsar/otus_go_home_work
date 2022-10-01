@@ -25,9 +25,9 @@ type EventServiceClient interface {
 	CreateEventV1(ctx context.Context, in *CreateEventRequestV1, opts ...grpc.CallOption) (*EventReplyV1, error)
 	UpdateEventV1(ctx context.Context, in *UpdateEventRequestV1, opts ...grpc.CallOption) (*EventReplyV1, error)
 	DeleteEventV1(ctx context.Context, in *DeleteEventRequestV1, opts ...grpc.CallOption) (*DeleteEventReplyV1, error)
-	GetEventsForDayV1(ctx context.Context, in *GetForDayRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error)
-	GetEventsForWeekV1(ctx context.Context, in *GetForWeekRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error)
-	GetEventsForMonthV1(ctx context.Context, in *GetForMonthRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error)
+	GetEventsForDayV1(ctx context.Context, in *GetEventsForDayRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error)
+	GetEventsForWeekV1(ctx context.Context, in *GetEventsForWeekRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error)
+	GetEventsForMonthV1(ctx context.Context, in *GetEventsForMonthRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error)
 }
 
 type eventServiceClient struct {
@@ -65,7 +65,7 @@ func (c *eventServiceClient) DeleteEventV1(ctx context.Context, in *DeleteEventR
 	return out, nil
 }
 
-func (c *eventServiceClient) GetEventsForDayV1(ctx context.Context, in *GetForDayRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error) {
+func (c *eventServiceClient) GetEventsForDayV1(ctx context.Context, in *GetEventsForDayRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error) {
 	out := new(EventsReplyV1)
 	err := c.cc.Invoke(ctx, "/event.EventService/GetEventsForDayV1", in, out, opts...)
 	if err != nil {
@@ -74,7 +74,7 @@ func (c *eventServiceClient) GetEventsForDayV1(ctx context.Context, in *GetForDa
 	return out, nil
 }
 
-func (c *eventServiceClient) GetEventsForWeekV1(ctx context.Context, in *GetForWeekRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error) {
+func (c *eventServiceClient) GetEventsForWeekV1(ctx context.Context, in *GetEventsForWeekRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error) {
 	out := new(EventsReplyV1)
 	err := c.cc.Invoke(ctx, "/event.EventService/GetEventsForWeekV1", in, out, opts...)
 	if err != nil {
@@ -83,7 +83,7 @@ func (c *eventServiceClient) GetEventsForWeekV1(ctx context.Context, in *GetForW
 	return out, nil
 }
 
-func (c *eventServiceClient) GetEventsForMonthV1(ctx context.Context, in *GetForMonthRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error) {
+func (c *eventServiceClient) GetEventsForMonthV1(ctx context.Context, in *GetEventsForMonthRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error) {
 	out := new(EventsReplyV1)
 	err := c.cc.Invoke(ctx, "/event.EventService/GetEventsForMonthV1", in, out, opts...)
 	if err != nil {
@@ -99,9 +99,9 @@ type EventServiceServer interface {
 	CreateEventV1(context.Context, *CreateEventRequestV1) (*EventReplyV1, error)
 	UpdateEventV1(context.Context, *UpdateEventRequestV1) (*EventReplyV1, error)
 	DeleteEventV1(context.Context, *DeleteEventRequestV1) (*DeleteEventReplyV1, error)
-	GetEventsForDayV1(context.Context, *GetForDayRequestV1) (*EventsReplyV1, error)
-	GetEventsForWeekV1(context.Context, *GetForWeekRequestV1) (*EventsReplyV1, error)
-	GetEventsForMonthV1(context.Context, *GetForMonthRequestV1) (*EventsReplyV1, error)
+	GetEventsForDayV1(context.Context, *GetEventsForDayRequestV1) (*EventsReplyV1, error)
+	GetEventsForWeekV1(context.Context, *GetEventsForWeekRequestV1) (*EventsReplyV1, error)
+	GetEventsForMonthV1(context.Context, *GetEventsForMonthRequestV1) (*EventsReplyV1, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
 
@@ -118,13 +118,13 @@ func (UnimplementedEventServiceServer) UpdateEventV1(context.Context, *UpdateEve
 func (UnimplementedEventServiceServer) DeleteEventV1(context.Context, *DeleteEventRequestV1) (*DeleteEventReplyV1, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteEventV1 not implemented")
 }
-func (UnimplementedEventServiceServer) GetEventsForDayV1(context.Context, *GetForDayRequestV1) (*EventsReplyV1, error) {
+func (UnimplementedEventServiceServer) GetEventsForDayV1(context.Context, *GetEventsForDayRequestV1) (*EventsReplyV1, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEventsForDayV1 not implemented")
 }
-func (UnimplementedEventServiceServer) GetEventsForWeekV1(context.Context, *GetForWeekRequestV1) (*EventsReplyV1, error) {
+func (UnimplementedEventServiceServer) GetEventsForWeekV1(context.Context, *GetEventsForWeekRequestV1) (*EventsReplyV1, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEventsForWeekV1 not implemented")
 }
-func (UnimplementedEventServiceServer) GetEventsForMonthV1(context.Context, *GetForMonthRequestV1) (*EventsReplyV1, error) {
+func (UnimplementedEventServiceServer) GetEventsForMonthV1(context.Context, *GetEventsForMonthRequestV1) (*EventsReplyV1, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEventsForMonthV1 not implemented")
 }
 func (UnimplementedEventServiceServer) mustEmbedUnimplementedEventServiceServer() {}
@@ -195,7 +195,7 @@ func _EventService_DeleteEventV1_Handler(srv interface{}, ctx context.Context, d
 }
 
 func _EventService_GetEventsForDayV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetForDayRequestV1)
+	in := new(GetEventsForDayRequestV1)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -207,13 +207,13 @@ func _EventService_GetEventsForDayV1_Handler(srv interface{}, ctx context.Contex
 		FullMethod: "/event.EventService/GetEventsForDayV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EventServiceServer).GetEventsForDayV1(ctx, req.(*GetForDayRequestV1))
+		return srv.(EventServiceServer).GetEventsForDayV1(ctx, req.(*GetEventsForDayRequestV1))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _EventService_GetEventsForWeekV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetForWeekRequestV1)
+	in := new(GetEventsForWeekRequestV1)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -225,13 +225,13 @@ func _EventService_GetEventsForWeekV1_Handler(srv interface{}, ctx context.Conte
 		FullMethod: "/event.EventService/GetEventsForWeekV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EventServiceServer).GetEventsForWeekV1(ctx, req.(*GetForWeekRequestV1))
+		return srv.(EventServiceServer).GetEventsForWeekV1(ctx, req.(*GetEventsForWeekRequestV1))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _EventService_GetEventsForMonthV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetForMonthRequestV1)
+	in := new(GetEventsForMonthRequestV1)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -243,7 +243,7 @@ func _EventService_GetEventsForMonthV1_Handler(srv interface{}, ctx context.Cont
 		FullMethod: "/event.EventService/GetEventsForMonthV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EventServiceServer).GetEventsForMonthV1(ctx, req.(*GetForMonthRequestV1))
+		return srv.(EventServiceServer).GetEventsForMonthV1(ctx, req.(*GetEventsForMonthRequestV1))
 	}
 	return interceptor(ctx, in, info, handler)
 }

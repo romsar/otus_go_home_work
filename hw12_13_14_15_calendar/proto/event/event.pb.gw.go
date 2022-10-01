@@ -190,7 +190,7 @@ var (
 )
 
 func request_EventService_GetEventsForDayV1_0(ctx context.Context, marshaler runtime.Marshaler, client EventServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetForDayRequestV1
+	var protoReq GetEventsForDayRequestV1
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -206,7 +206,7 @@ func request_EventService_GetEventsForDayV1_0(ctx context.Context, marshaler run
 }
 
 func local_request_EventService_GetEventsForDayV1_0(ctx context.Context, marshaler runtime.Marshaler, server EventServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetForDayRequestV1
+	var protoReq GetEventsForDayRequestV1
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -226,7 +226,7 @@ var (
 )
 
 func request_EventService_GetEventsForWeekV1_0(ctx context.Context, marshaler runtime.Marshaler, client EventServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetForWeekRequestV1
+	var protoReq GetEventsForWeekRequestV1
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -242,7 +242,7 @@ func request_EventService_GetEventsForWeekV1_0(ctx context.Context, marshaler ru
 }
 
 func local_request_EventService_GetEventsForWeekV1_0(ctx context.Context, marshaler runtime.Marshaler, server EventServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetForWeekRequestV1
+	var protoReq GetEventsForWeekRequestV1
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -262,7 +262,7 @@ var (
 )
 
 func request_EventService_GetEventsForMonthV1_0(ctx context.Context, marshaler runtime.Marshaler, client EventServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetForMonthRequestV1
+	var protoReq GetEventsForMonthRequestV1
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -278,7 +278,7 @@ func request_EventService_GetEventsForMonthV1_0(ctx context.Context, marshaler r
 }
 
 func local_request_EventService_GetEventsForMonthV1_0(ctx context.Context, marshaler runtime.Marshaler, server EventServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetForMonthRequestV1
+	var protoReq GetEventsForMonthRequestV1
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {

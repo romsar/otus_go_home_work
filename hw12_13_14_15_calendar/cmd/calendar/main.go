@@ -21,6 +21,7 @@ import (
 
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
 	grpcapi "github.com/RomanSarvarov/otus_go_home_work/calendar/api/grpc"
+	"github.com/RomanSarvarov/otus_go_home_work/calendar/api/rest"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/inmem"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/pkg/closer"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/postgres"
@@ -125,7 +126,7 @@ func run(config *Config) error {
 	mux := runtime.NewServeMux()
 	restSrv := &http.Server{
 		Addr:    config.REST.Address,
-		Handler: mux,
+		Handler: rest.LoggingMiddleware(mux),
 	}
 
 	closer.Add(func() error {
