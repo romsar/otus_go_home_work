@@ -443,6 +443,18 @@ func TestRepository_checkDateBusy(t *testing.T) {
 			wantErr: calendar.ErrDateBusy,
 		},
 		{
+			name: "ignore current event id",
+			events: []*calendar.Event{
+				{
+					ID:      uuid.MustParse("123e4567-e89b-12d3-a456-426614174000"),
+					StartAt: mustParseDateTime("2022-05-10 15:20:00"),
+					EndAt:   mustParseDateTime("2022-05-10 15:21:00"),
+					UserID:  uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
+				},
+			},
+			wantErr: nil,
+		},
+		{
 			name: "other user",
 			events: []*calendar.Event{
 				{
@@ -456,15 +468,17 @@ func TestRepository_checkDateBusy(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx := context.Background()
 			repo := New()
 
 			for _, e := range tt.events {
-				_, err := repo.CreateEvent(ctx, e)
-				require.NoError(t, err)
+				if e.ID == uuid.Nil {
+					e.ID = uuid.New()
+				}
+				repo.events[e.ID] = e
 			}
 
 			event := &calendar.Event{
+				ID:      uuid.MustParse("123e4567-e89b-12d3-a456-426614174000"),
 				StartAt: mustParseDateTime("2022-05-10 15:00:00"),
 				EndAt:   mustParseDateTime("2022-05-10 15:30:00"),
 				UserID:  uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
@@ -472,7 +486,7 @@ func TestRepository_checkDateBusy(t *testing.T) {
 
 			err := repo.checkDateBusy(event)
 
-			require.ErrorIs(t, tt.wantErr, err)
+			require.ErrorIs(t, err, tt.wantErr)
 		})
 	}
 }
