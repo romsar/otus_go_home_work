@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
@@ -19,29 +18,11 @@ type Config struct {
 // Server декларирует REST сервер.
 type Server struct {
 	httpServer *http.Server
-	m          Model
-}
-
-// Model декларирует контракт модели.
-type Model interface {
-	// CreateEvent создать событие.
-	CreateEvent(ctx context.Context, e *calendar.Event) (*calendar.Event, error)
-
-	// UpdateEvent обновить событие.
-	UpdateEvent(ctx context.Context, id uuid.UUID, e *calendar.Event) (*calendar.Event, error)
-
-	// DeleteEvent удалить событие.
-	DeleteEvent(ctx context.Context, id uuid.UUID) error
-
-	// FindEvents найти множество событий.
-	FindEvents(ctx context.Context, filter calendar.EventFilter) ([]*calendar.Event, error)
-
-	// FindEventByID найти событие по его идентификатору.
-	FindEventByID(ctx context.Context, id uuid.UUID) (*calendar.Event, error)
+	m          calendar.Model
 }
 
 // New инициализирует REST.
-func New(cfg Config, m Model) Server {
+func New(cfg Config, m calendar.Model) Server {
 	return Server{
 		httpServer: &http.Server{
 			Addr: cfg.Address,

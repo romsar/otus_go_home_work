@@ -228,23 +228,28 @@ func TestEventStorage_FindEvents(t *testing.T) {
 				},
 				found: false,
 			},
+
 			// from filter
 			{
-				name: "from match",
+				name: "from match (equal)",
 				args: args{
 					event: calendar.Event{
-						StartAt: func() time.Time {
-							date, err := time.Parse("2006-01-02 15:04:05", "2022-05-10 15:20:30")
-							require.NoError(t, err)
-							return date
-						}(),
+						StartAt: mustParseDateTime("2022-05-10 15:20:30"),
 					},
 					filter: calendar.EventFilter{
-						From: func() time.Time {
-							date, err := time.Parse("2006-01-02 15:04:05", "2022-05-10 15:20:30")
-							require.NoError(t, err)
-							return date
-						}(),
+						From: mustParseDateTime("2022-05-10 15:20:30"),
+					},
+				},
+				found: true,
+			},
+			{
+				name: "from match (greater)",
+				args: args{
+					event: calendar.Event{
+						StartAt: mustParseDateTime("2022-05-10 15:20:40"),
+					},
+					filter: calendar.EventFilter{
+						From: mustParseDateTime("2022-05-10 15:20:30"),
 					},
 				},
 				found: true,
@@ -253,18 +258,10 @@ func TestEventStorage_FindEvents(t *testing.T) {
 				name: "from skip",
 				args: args{
 					event: calendar.Event{
-						StartAt: func() time.Time {
-							date, err := time.Parse("2006-01-02 15:04:05", "2022-05-10 15:20:30")
-							require.NoError(t, err)
-							return date
-						}(),
+						StartAt: mustParseDateTime("2022-05-10 15:20:30"),
 					},
 					filter: calendar.EventFilter{
-						From: func() time.Time {
-							date, err := time.Parse("2006-01-02 15:04:05", "2022-05-10 15:20:29")
-							require.NoError(t, err)
-							return date
-						}(),
+						From: mustParseDateTime("2022-05-10 15:20:31"),
 					},
 				},
 				found: false,
@@ -272,11 +269,24 @@ func TestEventStorage_FindEvents(t *testing.T) {
 
 			// to filter
 			{
-				name: "to match",
+				name: "to match (equal)",
 				args: args{
 					event: calendar.Event{
 						StartAt: mustParseDateTime("2022-05-10 15:20:30"),
 						EndAt:   mustParseDateTime("2022-05-10 15:50:30"),
+					},
+					filter: calendar.EventFilter{
+						To: mustParseDateTime("2022-05-10 15:50:30"),
+					},
+				},
+				found: true,
+			},
+			{
+				name: "to match (less)",
+				args: args{
+					event: calendar.Event{
+						StartAt: mustParseDateTime("2022-05-10 15:20:30"),
+						EndAt:   mustParseDateTime("2022-05-10 15:50:20"),
 					},
 					filter: calendar.EventFilter{
 						To: mustParseDateTime("2022-05-10 15:50:30"),
@@ -292,7 +302,7 @@ func TestEventStorage_FindEvents(t *testing.T) {
 						EndAt:   mustParseDateTime("2022-05-10 15:50:30"),
 					},
 					filter: calendar.EventFilter{
-						To: mustParseDateTime("2022-05-10 15:50:31"),
+						To: mustParseDateTime("2022-05-10 15:50:29"),
 					},
 				},
 				found: false,

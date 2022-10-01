@@ -18,6 +18,9 @@ type Config struct {
 	// REST параметры для REST сервера.
 	REST RESTConfig
 
+	// GRPC параметры для GRPC сервера.
+	GRPC GRPCConfig
+
 	// PostgreSQL параметры для подключения к PostgreSQL.
 	PostgreSQL PostgreSQLConfig
 
@@ -35,6 +38,12 @@ type LogConfig struct {
 type RESTConfig struct {
 	// Address адрес REST сервера.
 	Address string `env:"REST_ADDRESS" envDefault:":8080"`
+}
+
+// GRPCConfig предоставляет настройки GRPC сервера.
+type GRPCConfig struct {
+	// Address адрес GRPC сервера.
+	Address string `env:"GRPC_ADDRESS" envDefault:":8081"`
 }
 
 // PostgreSQLConfig предоставляет настройки подключения к PostgreSQL.
