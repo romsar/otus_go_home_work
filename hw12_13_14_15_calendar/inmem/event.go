@@ -103,9 +103,14 @@ func passFilter(e *calendar.Event, filter calendar.EventFilter) bool {
 
 // checkDateBusy проверка на свободное время.
 // Если время занято, то вернет ошибку calendar.ErrDateBusy.
-func (repo *Repository) checkDateBusy(event *calendar.Event) error {
+func (repo *Repository) checkDateBusy(event *calendar.Event, ID ...uuid.UUID) error {
+	var ignore uuid.UUID
+	if len(ID) > 0 {
+		ignore = ID[0]
+	}
+
 	for _, e := range repo.events {
-		if e.ID == event.ID {
+		if e.ID == ignore {
 			continue
 		}
 
