@@ -385,6 +385,7 @@ func TestRepository_checkDateBusy(t *testing.T) {
 	tests := []struct {
 		name    string
 		events  []*calendar.Event
+		ids     []uuid.UUID
 		wantErr error
 	}{
 		{
@@ -452,6 +453,7 @@ func TestRepository_checkDateBusy(t *testing.T) {
 					UserID:  uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
 				},
 			},
+			ids:     []uuid.UUID{uuid.MustParse("123e4567-e89b-12d3-a456-426614174000")},
 			wantErr: nil,
 		},
 		{
@@ -484,7 +486,7 @@ func TestRepository_checkDateBusy(t *testing.T) {
 				UserID:  uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
 			}
 
-			err := repo.checkDateBusy(event)
+			err := repo.checkDateBusy(event, tt.ids...)
 
 			require.ErrorIs(t, err, tt.wantErr)
 		})
