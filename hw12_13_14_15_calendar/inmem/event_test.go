@@ -383,10 +383,10 @@ func TestEventStorage_FindEvent(t *testing.T) {
 
 func TestRepository_checkDateBusy(t *testing.T) {
 	tests := []struct {
-		name    string
-		events  []*calendar.Event
-		ids     []uuid.UUID
-		wantErr error
+		name       string
+		events     []*calendar.Event
+		ignoredIDs []uuid.UUID
+		wantErr    error
 	}{
 		{
 			name: "other event end when needle event begin",
@@ -453,8 +453,8 @@ func TestRepository_checkDateBusy(t *testing.T) {
 					UserID:  uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
 				},
 			},
-			ids:     []uuid.UUID{uuid.MustParse("123e4567-e89b-12d3-a456-426614174000")},
-			wantErr: nil,
+			ignoredIDs: []uuid.UUID{uuid.MustParse("123e4567-e89b-12d3-a456-426614174000")},
+			wantErr:    nil,
 		},
 		{
 			name: "other user",
@@ -486,7 +486,7 @@ func TestRepository_checkDateBusy(t *testing.T) {
 				UserID:  uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
 			}
 
-			err := repo.checkDateBusy(event, tt.ids...)
+			err := repo.checkDateBusy(event, tt.ignoredIDs...)
 
 			require.ErrorIs(t, err, tt.wantErr)
 		})

@@ -28,7 +28,7 @@ func (repo *Repository) UpdateEvent(ctx context.Context, id uuid.UUID, e *calend
 		return nil, errors.Wrap(err, "update event")
 	}
 
-	if err := repo.checkDateBusy(e); err != nil {
+	if err := repo.checkDateBusy(e, id); err != nil {
 		return nil, errors.Wrap(err, "update event")
 	}
 
