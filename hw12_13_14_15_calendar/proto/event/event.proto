@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package event;
+
+import "google/protobuf/duration.proto";
+
+option go_package = "./;event";
+
+service EventService {
+  rpc CreateEventV1(CreateEventRequestV1) returns (EventReplyV1) {}
+  rpc UpdateEventV1(UpdateEventRequestV1) returns (EventReplyV1) {}
+  rpc DeleteEventV1(DeleteEventRequestV1) returns (DeleteEventReplyV1) {}
+  rpc GetEventsForDayV1(GetForDayRequestV1) returns (EventsReplyV1) {}
+  rpc GetEventsForWeekV1(GetForWeekRequestV1) returns (EventsReplyV1) {}
+  rpc GetEventsForMonthV1(GetForMonthRequestV1) returns (EventsReplyV1) {}
+}
+
+message EventV1 {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  int64  start_at = 4;
+  int64  end_at = 5;
+  string user_uuid = 6;
+  google.protobuf.Duration notification_duration = 7;
+}
+
+message CreateEventRequestV1 {
+  EventV1 event = 1;
+}
+
+message UpdateEventRequestV1 {
+  string id = 1;
+  EventV1 event = 2;
+}
+
+message DeleteEventRequestV1 {
+  string id = 1;
+}
+
+message GetForDayRequestV1 {
+  string user_uuid = 1;
+  int64 date = 2;
+}
+
+message GetForWeekRequestV1 {
+  string user_uuid = 1;
+  int64 start_date = 2;
+}
+
+message GetForMonthRequestV1 {
+  string user_uuid = 1;
+  int64 start_date = 2;
+}
+
+message EventReplyV1 {
+  EventV1 event = 1;
+}
+
+message EventsReplyV1 {
+  repeated EventV1 events = 1;
+}
+
+message DeleteEventReplyV1 {
+  string message = 1;
+}
