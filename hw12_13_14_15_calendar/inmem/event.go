@@ -105,6 +105,10 @@ func passFilter(e *calendar.Event, filter calendar.EventFilter) bool {
 // Если время занято, то вернет ошибку calendar.ErrDateBusy.
 func (repo *Repository) checkDateBusy(event *calendar.Event) error {
 	for _, e := range repo.events {
+		if e.ID == event.ID {
+			continue
+		}
+
 		if e.UserID != event.UserID {
 			continue
 		}
