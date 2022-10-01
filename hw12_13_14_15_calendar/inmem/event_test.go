@@ -25,7 +25,7 @@ func TestEventStorage_CreateEvent(t *testing.T) {
 		userID := uuid.New()
 		startAt := mustParseDateTime("2022-12-05 10:00:00")
 		endAt := mustParseDateTime("2022-12-05 10:00:30")
-		notificationDuration := 10 * time.Hour
+		notificationDuration := (10 * time.Hour).Minutes()
 
 		event, err := repo.CreateEvent(ctx, &calendar.Event{
 			ID:                   id,
@@ -34,7 +34,7 @@ func TestEventStorage_CreateEvent(t *testing.T) {
 			StartAt:              startAt,
 			EndAt:                endAt,
 			UserID:               userID,
-			NotificationDuration: notificationDuration,
+			NotificationDuration: uint32(notificationDuration),
 		})
 
 		require.NoError(t, err)
@@ -47,7 +47,7 @@ func TestEventStorage_CreateEvent(t *testing.T) {
 		require.Equal(t, startAt, event.StartAt)
 		require.Equal(t, endAt, event.EndAt)
 		require.Equal(t, userID, event.UserID)
-		require.Equal(t, notificationDuration, event.NotificationDuration)
+		require.Equal(t, uint32(notificationDuration), event.NotificationDuration)
 
 		// check storage
 		require.Len(t, repo.events, 1)
@@ -78,7 +78,7 @@ func TestEventStorage_UpdateEvent(t *testing.T) {
 		userID := uuid.New()
 		startAt := mustParseDateTime("2022-12-05 10:00:00")
 		endAt := mustParseDateTime("2022-12-05 10:00:30")
-		notificationDuration := 10 * time.Hour
+		notificationDuration := (10 * time.Hour).Minutes()
 
 		event, err = repo.UpdateEvent(ctx, id, &calendar.Event{
 			Title:                title,
@@ -86,7 +86,7 @@ func TestEventStorage_UpdateEvent(t *testing.T) {
 			StartAt:              startAt,
 			EndAt:                endAt,
 			UserID:               userID,
-			NotificationDuration: notificationDuration,
+			NotificationDuration: uint32(notificationDuration),
 		})
 
 		require.NoError(t, err)
@@ -99,7 +99,7 @@ func TestEventStorage_UpdateEvent(t *testing.T) {
 		require.Equal(t, startAt, event.StartAt)
 		require.Equal(t, endAt, event.EndAt)
 		require.Equal(t, userID, event.UserID)
-		require.Equal(t, notificationDuration, event.NotificationDuration)
+		require.Equal(t, uint32(notificationDuration), event.NotificationDuration)
 
 		// check storage
 		require.Len(t, repo.events, 1)
@@ -166,7 +166,7 @@ func TestEventStorage_FindEvents(t *testing.T) {
 		userID := uuid.New()
 		startAt := mustParseDateTime("2022-12-05 10:00:00")
 		endAt := mustParseDateTime("2022-12-05 10:00:30")
-		notificationDuration := 10 * time.Hour
+		notificationDuration := (10 * time.Hour).Minutes()
 
 		event, err := repo.CreateEvent(ctx, &calendar.Event{
 			Title:                title,
@@ -174,7 +174,7 @@ func TestEventStorage_FindEvents(t *testing.T) {
 			StartAt:              startAt,
 			EndAt:                endAt,
 			UserID:               userID,
-			NotificationDuration: notificationDuration,
+			NotificationDuration: uint32(notificationDuration),
 		})
 		require.NoError(t, err)
 
@@ -190,7 +190,7 @@ func TestEventStorage_FindEvents(t *testing.T) {
 		require.Equal(t, startAt, events[0].StartAt)
 		require.Equal(t, endAt, events[0].EndAt)
 		require.Equal(t, userID, events[0].UserID)
-		require.Equal(t, notificationDuration, events[0].NotificationDuration)
+		require.Equal(t, uint32(notificationDuration), events[0].NotificationDuration)
 	})
 
 	t.Run("filter", func(t *testing.T) {
@@ -341,7 +341,7 @@ func TestEventStorage_FindEvent(t *testing.T) {
 		userID := uuid.New()
 		startAt := mustParseDateTime("2022-12-05 10:00:00")
 		endAt := mustParseDateTime("2022-12-05 10:00:30")
-		notificationDuration := 10 * time.Hour
+		notificationDuration := (10 * time.Hour).Minutes()
 
 		event, err := repo.CreateEvent(ctx, &calendar.Event{
 			Title:                title,
@@ -349,7 +349,7 @@ func TestEventStorage_FindEvent(t *testing.T) {
 			StartAt:              startAt,
 			EndAt:                endAt,
 			UserID:               userID,
-			NotificationDuration: notificationDuration,
+			NotificationDuration: uint32(notificationDuration),
 		})
 		require.NoError(t, err)
 		id := event.ID
@@ -365,7 +365,7 @@ func TestEventStorage_FindEvent(t *testing.T) {
 		require.Equal(t, startAt, event.StartAt)
 		require.Equal(t, endAt, event.EndAt)
 		require.Equal(t, userID, event.UserID)
-		require.Equal(t, notificationDuration, event.NotificationDuration)
+		require.Equal(t, uint32(notificationDuration), event.NotificationDuration)
 	})
 
 	t.Run("not found", func(t *testing.T) {

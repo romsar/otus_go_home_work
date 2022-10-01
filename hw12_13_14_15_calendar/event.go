@@ -26,8 +26,8 @@ type Event struct {
 	// UserID идентификатор пользователя (владельца события).
 	UserID uuid.UUID `db:"user_id"`
 
-	// NotificationDuration за какое количество времени уведомить о начале события.
-	NotificationDuration time.Duration `db:"notification_duration"`
+	// NotificationDuration за какое количество минут уведомить о начале события.
+	NotificationDuration uint32 `db:"notification_duration"`
 }
 
 // EventFilter предоставляет фильтр для поиска.

@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/philip-bui/grpc-zerolog"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
@@ -20,7 +21,6 @@ import (
 
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
 	grpcapi "github.com/RomanSarvarov/otus_go_home_work/calendar/api/grpc"
-	restapi "github.com/RomanSarvarov/otus_go_home_work/calendar/api/rest"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/inmem"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/pkg/closer"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/postgres"
@@ -122,18 +122,18 @@ func run(config *Config) error {
 	}
 
 	// Start REST.
-	serverCfg := restapi.Config{
-		Address: config.REST.Address,
+	mux := runtime.NewServeMux()
+	restSrv := &http.Server{
+		Addr:    config.REST.Address,
+		Handler: mux,
 	}
-
-	restSrv := restapi.New(serverCfg, model)
 
 	closer.Add(func() error {
 		log.
 			Debug().
 			Msgf("terminating REST server")
 
-		if err := restSrv.Close(ctx); err != nil && !errors.Is(err, context.Canceled) {
+		if err := restSrv.Close(); err != nil && !errors.Is(err, context.Canceled) {
 			return err
 		}
 
@@ -145,7 +145,12 @@ func run(config *Config) error {
 			Debug().
 			Msgf("starting REST server on: `%s`", config.REST.Address)
 
-		err := restSrv.Listen(restapi.LoggingMiddleware)
+		err := event.RegisterEventServiceHandlerServer(context.Background(), mux, grpcapi.New(model))
+		if err != nil {
+			return errors.Wrap(err, "register event service handler server")
+		}
+
+		err = restSrv.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			return err
 		}
@@ -161,6 +166,7 @@ func run(config *Config) error {
 	grpcSrv := grpc.NewServer(
 		zerolog.UnaryInterceptor(),
 	)
+
 	event.RegisterEventServiceServer(grpcSrv, grpcapi.New(model))
 
 	closer.Add(func() error {
