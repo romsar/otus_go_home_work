@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/proto/event"
@@ -39,7 +38,7 @@ func (s Server) CreateEventV1(ctx context.Context, req *event.CreateEventRequest
 		StartAt:              time.Unix(req.Event.StartAt, 0),
 		EndAt:                time.Unix(req.Event.EndAt, 0),
 		UserID:               userID,
-		NotificationDuration: req.Event.NotificationDuration.AsDuration(),
+		NotificationDuration: req.Event.NotificationDuration,
 	})
 	if err != nil {
 		if errors.Is(err, calendar.ErrDateBusy) {
@@ -57,7 +56,7 @@ func (s Server) CreateEventV1(ctx context.Context, req *event.CreateEventRequest
 			StartAt:              e.StartAt.Unix(),
 			EndAt:                e.EndAt.Unix(),
 			UserUuid:             e.UserID.String(),
-			NotificationDuration: durationpb.New(e.NotificationDuration),
+			NotificationDuration: e.NotificationDuration,
 		},
 	}, nil
 }
@@ -79,7 +78,7 @@ func (s Server) UpdateEventV1(ctx context.Context, req *event.UpdateEventRequest
 		StartAt:              time.Unix(req.Event.StartAt, 0),
 		EndAt:                time.Unix(req.Event.EndAt, 0),
 		UserID:               userID,
-		NotificationDuration: req.Event.NotificationDuration.AsDuration(),
+		NotificationDuration: req.Event.NotificationDuration,
 	})
 	if err != nil {
 		if errors.Is(err, calendar.ErrDateBusy) {
@@ -97,7 +96,7 @@ func (s Server) UpdateEventV1(ctx context.Context, req *event.UpdateEventRequest
 			StartAt:              e.StartAt.Unix(),
 			EndAt:                e.EndAt.Unix(),
 			UserUuid:             e.UserID.String(),
-			NotificationDuration: durationpb.New(e.NotificationDuration),
+			NotificationDuration: e.NotificationDuration,
 		},
 	}, nil
 }
@@ -124,7 +123,7 @@ func (s Server) GetEventsForDayV1(ctx context.Context, req *event.GetForDayReque
 	}
 
 	date := time.Unix(req.Date, 0)
-	nextDay := date.Add(24 * time.Hour)
+	nextDay := date.AddDate(0, 0, 1)
 
 	year, month, day := date.Date()
 	nYear, nMonth, nDay := nextDay.Date()
@@ -137,10 +136,11 @@ func (s Server) GetEventsForDayV1(ctx context.Context, req *event.GetForDayReque
 		To:     to,
 	})
 	if err != nil {
-		return nil, status.Error(codes.Unavailable, "error while getting events")
+		return nil, status.Error(codes.Unavailable, "error while getting events for day")
 	}
 
-	result := make([]*event.EventV1, len(events))
+	result := make([]*event.EventV1, 0, len(events))
+
 	for _, e := range events {
 		result = append(result, &event.EventV1{
 			Id:                   e.ID.String(),
@@ -149,7 +149,7 @@ func (s Server) GetEventsForDayV1(ctx context.Context, req *event.GetForDayReque
 			StartAt:              e.StartAt.Unix(),
 			EndAt:                e.EndAt.Unix(),
 			UserUuid:             e.UserID.String(),
-			NotificationDuration: durationpb.New(e.NotificationDuration),
+			NotificationDuration: e.NotificationDuration,
 		})
 	}
 
@@ -158,10 +158,86 @@ func (s Server) GetEventsForDayV1(ctx context.Context, req *event.GetForDayReque
 	}, nil
 }
 
-func (s Server) GetEventsForWeekV1(context.Context, *event.GetForWeekRequestV1) (*event.EventsReplyV1, error) {
-	return &event.EventsReplyV1{}, nil
+func (s Server) GetEventsForWeekV1(ctx context.Context, req *event.GetForWeekRequestV1) (*event.EventsReplyV1, error) {
+	userID, err := uuid.Parse(req.UserUuid)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid user uuid")
+	}
+
+	date := time.Unix(req.StartDate, 0)
+	nextWeek := date.AddDate(0, 0, 7)
+
+	year, month, day := date.Date()
+	nYear, nMonth, nDay := nextWeek.Date()
+	from := time.Date(year, month, day, 0, 0, 0, 0, date.Location())
+	to := time.Date(nYear, nMonth, nDay, 0, 0, 0, 0, nextWeek.Location())
+
+	events, err := s.m.FindEvents(ctx, calendar.EventFilter{
+		UserID: userID,
+		From:   from,
+		To:     to,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Unavailable, "error while getting events for week")
+	}
+
+	result := make([]*event.EventV1, 0, len(events))
+
+	for _, e := range events {
+		result = append(result, &event.EventV1{
+			Id:                   e.ID.String(),
+			Title:                e.Title,
+			Description:          e.Description,
+			StartAt:              e.StartAt.Unix(),
+			EndAt:                e.EndAt.Unix(),
+			UserUuid:             e.UserID.String(),
+			NotificationDuration: e.NotificationDuration,
+		})
+	}
+
+	return &event.EventsReplyV1{
+		Events: result,
+	}, nil
 }
 
-func (s Server) GetEventsForMonthV1(context.Context, *event.GetForMonthRequestV1) (*event.EventsReplyV1, error) {
-	return &event.EventsReplyV1{}, nil
+func (s Server) GetEventsForMonthV1(ctx context.Context, req *event.GetForMonthRequestV1) (*event.EventsReplyV1, error) {
+	userID, err := uuid.Parse(req.UserUuid)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid user uuid")
+	}
+
+	date := time.Unix(req.StartDate, 0)
+	nextMonth := date.AddDate(0, 1, 0)
+
+	year, month, day := date.Date()
+	nYear, nMonth, nDay := nextMonth.Date()
+	from := time.Date(year, month, day, 0, 0, 0, 0, date.Location())
+	to := time.Date(nYear, nMonth, nDay, 0, 0, 0, 0, nextMonth.Location())
+
+	events, err := s.m.FindEvents(ctx, calendar.EventFilter{
+		UserID: userID,
+		From:   from,
+		To:     to,
+	})
+	if err != nil {
+		return nil, status.Error(codes.Unavailable, "error while getting events for month")
+	}
+
+	result := make([]*event.EventV1, 0, len(events))
+
+	for _, e := range events {
+		result = append(result, &event.EventV1{
+			Id:                   e.ID.String(),
+			Title:                e.Title,
+			Description:          e.Description,
+			StartAt:              e.StartAt.Unix(),
+			EndAt:                e.EndAt.Unix(),
+			UserUuid:             e.UserID.String(),
+			NotificationDuration: e.NotificationDuration,
+		})
+	}
+
+	return &event.EventsReplyV1{
+		Events: result,
+	}, nil
 }

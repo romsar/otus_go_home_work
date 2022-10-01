@@ -2,17 +2,43 @@ syntax = "proto3";
 
 package event;
 
-import "google/protobuf/duration.proto";
+import "google/api/annotations.proto";
 
 option go_package = "./;event";
 
 service EventService {
-  rpc CreateEventV1(CreateEventRequestV1) returns (EventReplyV1) {}
-  rpc UpdateEventV1(UpdateEventRequestV1) returns (EventReplyV1) {}
-  rpc DeleteEventV1(DeleteEventRequestV1) returns (DeleteEventReplyV1) {}
-  rpc GetEventsForDayV1(GetForDayRequestV1) returns (EventsReplyV1) {}
-  rpc GetEventsForWeekV1(GetForWeekRequestV1) returns (EventsReplyV1) {}
-  rpc GetEventsForMonthV1(GetForMonthRequestV1) returns (EventsReplyV1) {}
+  rpc CreateEventV1(CreateEventRequestV1) returns (EventReplyV1) {
+    option (google.api.http) = {
+      post: "/events",
+      body: "*"
+    };
+  }
+  rpc UpdateEventV1(UpdateEventRequestV1) returns (EventReplyV1) {
+    option (google.api.http) = {
+      put: "/events/{id}",
+      body: "*"
+    };
+  }
+  rpc DeleteEventV1(DeleteEventRequestV1) returns (DeleteEventReplyV1) {
+    option (google.api.http) = {
+      delete: "/events/{id}"
+    };
+  }
+  rpc GetEventsForDayV1(GetForDayRequestV1) returns (EventsReplyV1) {
+    option (google.api.http) = {
+      get: "/events/day"
+    };
+  }
+  rpc GetEventsForWeekV1(GetForWeekRequestV1) returns (EventsReplyV1) {
+    option (google.api.http) = {
+      get: "/events/week"
+    };
+  }
+  rpc GetEventsForMonthV1(GetForMonthRequestV1) returns (EventsReplyV1) {
+    option (google.api.http) = {
+      get: "/events/month"
+    };
+  }
 }
 
 message EventV1 {
@@ -22,7 +48,7 @@ message EventV1 {
   int64  start_at = 4;
   int64  end_at = 5;
   string user_uuid = 6;
-  google.protobuf.Duration notification_duration = 7;
+  uint32 notification_duration = 7;
 }
 
 message CreateEventRequestV1 {

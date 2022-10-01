@@ -36,6 +36,7 @@ func Test_loadConfig(t *testing.T) {
 				},
 				DBDriver: "postgres",
 				REST:     RESTConfig{Address: ":8080"},
+				GRPC:     GRPCConfig{Address: ":8081"},
 				PostgreSQL: PostgreSQLConfig{
 					Host:     "",
 					Port:     0,
