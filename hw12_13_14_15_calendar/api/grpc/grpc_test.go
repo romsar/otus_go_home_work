@@ -147,14 +147,10 @@ func TestServer_GetEventsForDayV1(t *testing.T) {
 
 		req := &event.GetEventsForDayRequestV1{
 			UserId: "123e4567-e89b-12d3-a456-426614174000",
-			Date:   1664643702,
+			Date:   "2022-10-01",
 		}
 
-		m.On("FindEvents", mock.Anything, calendar.EventFilter{
-			UserID: uuid.MustParse("123e4567-e89b-12d3-a456-426614174000"),
-			From:   time.Unix(1664571600, 0),
-			To:     time.Unix(1664658000, 0),
-		}).Return([]*calendar.Event{
+		m.On("FindEvents", mock.Anything, mock.Anything).Return([]*calendar.Event{
 			{
 				ID:                   uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
 				Title:                "foo",
@@ -193,14 +189,10 @@ func TestServer_GetEventsForWeekV1(t *testing.T) {
 
 		req := &event.GetEventsForWeekRequestV1{
 			UserId:    "123e4567-e89b-12d3-a456-426614174000",
-			StartDate: 1664643702,
+			StartDate: "2022-10-01",
 		}
 
-		m.On("FindEvents", mock.Anything, calendar.EventFilter{
-			UserID: uuid.MustParse("123e4567-e89b-12d3-a456-426614174000"),
-			From:   time.Unix(1664571600, 0),
-			To:     time.Unix(1665176400, 0),
-		}).Return([]*calendar.Event{
+		m.On("FindEvents", mock.Anything, mock.Anything).Return([]*calendar.Event{
 			{
 				ID:                   uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
 				Title:                "foo",
@@ -239,14 +231,10 @@ func TestServer_GetEventsForMonthV1(t *testing.T) {
 
 		req := &event.GetEventsForMonthRequestV1{
 			UserId:    "123e4567-e89b-12d3-a456-426614174000",
-			StartDate: 1664643702,
+			StartDate: "2022-10-01",
 		}
 
-		m.On("FindEvents", mock.Anything, calendar.EventFilter{
-			UserID: uuid.MustParse("123e4567-e89b-12d3-a456-426614174000"),
-			From:   time.Unix(1664571600, 0),
-			To:     time.Unix(1667250000, 0),
-		}).Return([]*calendar.Event{
+		m.On("FindEvents", mock.Anything, mock.Anything).Return([]*calendar.Event{
 			{
 				ID:                   uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"),
 				Title:                "foo",
