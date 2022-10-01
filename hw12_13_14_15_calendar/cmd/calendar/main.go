@@ -10,7 +10,7 @@ import (
 	"syscall"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/philip-bui/grpc-zerolog"
+	grpczerolog "github.com/philip-bui/grpc-zerolog"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
@@ -165,7 +165,7 @@ func run(config *Config) error {
 	}
 
 	grpcSrv := grpc.NewServer(
-		zerolog.UnaryInterceptor(),
+		grpczerolog.UnaryInterceptor(),
 	)
 
 	event.RegisterEventServiceServer(grpcSrv, grpcapi.New(model))
