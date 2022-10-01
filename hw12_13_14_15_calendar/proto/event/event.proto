@@ -24,17 +24,17 @@ service EventService {
       delete: "/events/{id}"
     };
   }
-  rpc GetEventsForDayV1(GetForDayRequestV1) returns (EventsReplyV1) {
+  rpc GetEventsForDayV1(GetEventsForDayRequestV1) returns (EventsReplyV1) {
     option (google.api.http) = {
       get: "/events/day"
     };
   }
-  rpc GetEventsForWeekV1(GetForWeekRequestV1) returns (EventsReplyV1) {
+  rpc GetEventsForWeekV1(GetEventsForWeekRequestV1) returns (EventsReplyV1) {
     option (google.api.http) = {
       get: "/events/week"
     };
   }
-  rpc GetEventsForMonthV1(GetForMonthRequestV1) returns (EventsReplyV1) {
+  rpc GetEventsForMonthV1(GetEventsForMonthRequestV1) returns (EventsReplyV1) {
     option (google.api.http) = {
       get: "/events/month"
     };
@@ -47,7 +47,7 @@ message EventV1 {
   string description = 3;
   int64  start_at = 4;
   int64  end_at = 5;
-  string user_uuid = 6;
+  string user_id = 6;
   uint32 notification_duration = 7;
 }
 
@@ -64,18 +64,18 @@ message DeleteEventRequestV1 {
   string id = 1;
 }
 
-message GetForDayRequestV1 {
-  string user_uuid = 1;
+message GetEventsForDayRequestV1 {
+  string user_id = 1;
   int64 date = 2;
 }
 
-message GetForWeekRequestV1 {
-  string user_uuid = 1;
+message GetEventsForWeekRequestV1 {
+  string user_id = 1;
   int64 start_date = 2;
 }
 
-message GetForMonthRequestV1 {
-  string user_uuid = 1;
+message GetEventsForMonthRequestV1 {
+  string user_id = 1;
   int64 start_date = 2;
 }
 
