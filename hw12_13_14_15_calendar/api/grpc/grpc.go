@@ -29,7 +29,7 @@ var _ event.EventServiceServer = (*Server)(nil)
 func (s Server) CreateEventV1(ctx context.Context, req *event.CreateEventRequestV1) (*event.EventReplyV1, error) {
 	userID, err := uuid.Parse(req.Event.UserId)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid user uuid")
+		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
 	e, err := s.m.CreateEvent(ctx, &calendar.Event{
@@ -64,7 +64,7 @@ func (s Server) CreateEventV1(ctx context.Context, req *event.CreateEventRequest
 func (s Server) UpdateEventV1(ctx context.Context, req *event.UpdateEventRequestV1) (*event.EventReplyV1, error) {
 	userID, err := uuid.Parse(req.Event.UserId)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid user uuid")
+		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
 	ID, err := uuid.Parse(req.Id)
@@ -119,16 +119,20 @@ func (s Server) DeleteEventV1(ctx context.Context, req *event.DeleteEventRequest
 func (s Server) GetEventsForDayV1(ctx context.Context, req *event.GetEventsForDayRequestV1) (*event.EventsReplyV1, error) {
 	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid user uuid")
+		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	date := time.Unix(req.Date, 0)
+	date, err := time.Parse("2006-01-02", req.Date)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid date")
+	}
+
 	nextDay := date.AddDate(0, 0, 1)
 
 	year, month, day := date.Date()
 	nYear, nMonth, nDay := nextDay.Date()
-	from := time.Date(year, month, day, 0, 0, 0, 0, date.Location())
-	to := time.Date(nYear, nMonth, nDay, 0, 0, 0, 0, nextDay.Location())
+	from := time.Date(year, month, day, 0, 0, 0, 0, date.UTC().Location())
+	to := time.Date(nYear, nMonth, nDay, 0, 0, 0, 0, nextDay.UTC().Location())
 
 	events, err := s.m.FindEvents(ctx, calendar.EventFilter{
 		UserID: userID,
@@ -161,16 +165,20 @@ func (s Server) GetEventsForDayV1(ctx context.Context, req *event.GetEventsForDa
 func (s Server) GetEventsForWeekV1(ctx context.Context, req *event.GetEventsForWeekRequestV1) (*event.EventsReplyV1, error) {
 	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid user uuid")
+		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	date := time.Unix(req.StartDate, 0)
+	date, err := time.Parse("2006-01-02", req.StartDate)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid date")
+	}
+
 	nextWeek := date.AddDate(0, 0, 7)
 
 	year, month, day := date.Date()
 	nYear, nMonth, nDay := nextWeek.Date()
-	from := time.Date(year, month, day, 0, 0, 0, 0, date.Location())
-	to := time.Date(nYear, nMonth, nDay, 0, 0, 0, 0, nextWeek.Location())
+	from := time.Date(year, month, day, 0, 0, 0, 0, date.UTC().Location())
+	to := time.Date(nYear, nMonth, nDay, 0, 0, 0, 0, nextWeek.UTC().Location())
 
 	events, err := s.m.FindEvents(ctx, calendar.EventFilter{
 		UserID: userID,
@@ -203,16 +211,20 @@ func (s Server) GetEventsForWeekV1(ctx context.Context, req *event.GetEventsForW
 func (s Server) GetEventsForMonthV1(ctx context.Context, req *event.GetEventsForMonthRequestV1) (*event.EventsReplyV1, error) {
 	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid user uuid")
+		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	date := time.Unix(req.StartDate, 0)
+	date, err := time.Parse("2006-01-02", req.StartDate)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid date")
+	}
+
 	nextMonth := date.AddDate(0, 1, 0)
 
 	year, month, day := date.Date()
 	nYear, nMonth, nDay := nextMonth.Date()
-	from := time.Date(year, month, day, 0, 0, 0, 0, date.Location())
-	to := time.Date(nYear, nMonth, nDay, 0, 0, 0, 0, nextMonth.Location())
+	from := time.Date(year, month, day, 0, 0, 0, 0, date.UTC().Location())
+	to := time.Date(nYear, nMonth, nDay, 0, 0, 0, 0, nextMonth.UTC().Location())
 
 	events, err := s.m.FindEvents(ctx, calendar.EventFilter{
 		UserID: userID,

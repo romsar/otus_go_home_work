@@ -66,17 +66,17 @@ message DeleteEventRequestV1 {
 
 message GetEventsForDayRequestV1 {
   string user_id = 1;
-  int64 date = 2;
+  string date = 2;
 }
 
 message GetEventsForWeekRequestV1 {
   string user_id = 1;
-  int64 start_date = 2;
+  string start_date = 2;
 }
 
 message GetEventsForMonthRequestV1 {
   string user_id = 1;
-  int64 start_date = 2;
+  string start_date = 2;
 }
 
 message EventReplyV1 {
