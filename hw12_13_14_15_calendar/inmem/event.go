@@ -90,11 +90,11 @@ func passFilter(e *calendar.Event, filter calendar.EventFilter) bool {
 		return false
 	}
 
-	if !filter.From.IsZero() && filter.From.Before(e.StartAt) {
+	if !filter.From.IsZero() && e.StartAt.Before(filter.From) {
 		return false
 	}
 
-	if !filter.To.IsZero() && filter.To.After(e.EndAt) {
+	if !filter.To.IsZero() && e.EndAt.After(filter.To) {
 		return false
 	}
 
