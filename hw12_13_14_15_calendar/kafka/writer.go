@@ -3,7 +3,7 @@ package kafka
 import (
 	"context"
 
-	"github.com/segmentio/kafka-go"
+	kafka "github.com/segmentio/kafka-go"
 )
 
 type Writer struct {

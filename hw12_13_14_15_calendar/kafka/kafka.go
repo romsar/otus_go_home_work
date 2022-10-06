@@ -1,6 +1,6 @@
 package kafka
 
-import "github.com/segmentio/kafka-go"
+import kafka "github.com/segmentio/kafka-go"
 
 var TCP = kafka.TCP
 
