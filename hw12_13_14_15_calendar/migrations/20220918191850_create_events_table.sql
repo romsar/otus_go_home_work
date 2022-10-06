@@ -10,7 +10,8 @@ create table events
     start_at              timestamp    not null,
     end_at                timestamp      not null,
     user_id               uuid         not null,
-    notification_duration bigint
+    notification_duration bigint,
+    is_notified           bool
 );
 
 alter table events
@@ -18,6 +19,9 @@ alter table events
 
 create index events_user_id_start_at_end_at_index
     on events (user_id, start_at, end_at);
+
+create index events_user_id_notification_duration_is_notified_index
+    on events (user_id, notification_duration, is_notified);
 -- +goose StatementEnd
 
 -- +goose Down

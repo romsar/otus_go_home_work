@@ -307,9 +307,93 @@ func TestEventStorage_FindEvents(t *testing.T) {
 				},
 				found: false,
 			},
+
+			// is notified filter
+			{
+				name: "is notified match",
+				args: args{
+					event: calendar.Event{
+						IsNotified: false,
+					},
+					filter: calendar.EventFilter{
+						NotNotified: true,
+					},
+				},
+				found: true,
+			},
+			{
+				name: "is notified skip",
+				args: args{
+					event: calendar.Event{
+						IsNotified: true,
+					},
+					filter: calendar.EventFilter{
+						NotNotified: true,
+					},
+				},
+				found: false,
+			},
+
+			// notify time
+			{
+				name: "notify time match eq",
+				args: args{
+					event: calendar.Event{
+						StartAt:              mustParseDateTime("2022-05-10 16:00:00"),
+						NotificationDuration: 30,
+					},
+					filter: calendar.EventFilter{
+						NotifyTime: true,
+					},
+				},
+				found: true,
+			},
+			{
+				name: "notify time match gr",
+				args: args{
+					event: calendar.Event{
+						StartAt:              mustParseDateTime("2022-05-10 15:59:59"),
+						NotificationDuration: 30,
+					},
+					filter: calendar.EventFilter{
+						NotifyTime: true,
+					},
+				},
+				found: true,
+			},
+			{
+				name: "notify time skip (already started)",
+				args: args{
+					event: calendar.Event{
+						StartAt:              mustParseDateTime("2022-05-10 16:00:01"),
+						NotificationDuration: 30,
+					},
+					filter: calendar.EventFilter{
+						NotifyTime: true,
+					},
+				},
+				found: false,
+			},
+			{
+				name: "notify time skip (not yet)",
+				args: args{
+					event: calendar.Event{
+						StartAt:              mustParseDateTime("2022-05-10 16:00:00"),
+						NotificationDuration: 29,
+					},
+					filter: calendar.EventFilter{
+						NotifyTime: true,
+					},
+				},
+				found: false,
+			},
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
+				TimeNowFunc = func() time.Time {
+					return mustParseDateTime("2022-05-10 15:30:00")
+				}
+
 				ctx := context.Background()
 				repo := New()
 

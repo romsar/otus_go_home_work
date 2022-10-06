@@ -24,9 +24,17 @@ migrate-create:
 
 build:
 	go build ./cmd/calendar
+	go build ./cmd/calendar_scheduler
+	go build ./cmd/calendar_sender
 
 run:
 	go run ./cmd/calendar --config=.env
+
+run-scheduler:
+	go run ./cmd/calendar_scheduler --config=.env
+
+run-sender:
+	go run ./cmd/calendar_sender --config=.env
 
 test:
 	go test -race ./...

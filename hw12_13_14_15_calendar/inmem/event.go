@@ -2,12 +2,21 @@ package inmem
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
 )
+
+var TimeNowFunc func() time.Time
+
+func init() {
+	if TimeNowFunc == nil {
+		TimeNowFunc = time.Now
+	}
+}
 
 // CreateEvent создает событие.
 func (repo *Repository) CreateEvent(ctx context.Context, e *calendar.Event) (*calendar.Event, error) {
@@ -88,6 +97,24 @@ func (repo *Repository) findEventByID(id uuid.UUID) (*calendar.Event, error) {
 func passFilter(e *calendar.Event, filter calendar.EventFilter) bool {
 	if filter.UserID != uuid.Nil && e.UserID != filter.UserID {
 		return false
+	}
+
+	if filter.NotNotified && e.IsNotified {
+		return false
+	}
+
+	if filter.NotifyTime {
+		now := TimeNowFunc()
+
+		if e.StartAt.Before(now) {
+			return false
+		}
+
+		notifyAt := e.StartAt.Add(-time.Duration(int64(e.NotificationDuration)) * time.Minute)
+
+		if now.Before(notifyAt) {
+			return false
+		}
 	}
 
 	if !filter.From.IsZero() && e.StartAt.Before(filter.From) {

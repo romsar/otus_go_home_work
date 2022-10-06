@@ -28,6 +28,9 @@ type Event struct {
 
 	// NotificationDuration за какое количество минут уведомить о начале события.
 	NotificationDuration uint32 `db:"notification_duration"`
+
+	// IsNotified было ли уведомление уже выслано.
+	IsNotified bool `db:"is_notified"`
 }
 
 // EventFilter предоставляет фильтр для поиска.
@@ -40,4 +43,10 @@ type EventFilter struct {
 
 	// To дата и время окончания события.
 	To time.Time
+
+	// NotNotified только события, по которым еще небыло отправлено уведомление.
+	NotNotified bool
+
+	// NotifyTime найти те события, по которым нужно выслать уведомление.
+	NotifyTime bool
 }
