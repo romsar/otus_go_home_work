@@ -20,9 +20,9 @@ require (
 	github.com/segmentio/kafka-go v0.4.35
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.0
+	github.com/vektra/mockery/v2 v2.14.0 // indirect
 	golang.org/x/net v0.0.0-20220907135653-1e95f45603a7 // indirect
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
-	golang.org/x/sys v0.0.0-20220913175220-63ea55921009 // indirect
 	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc
 	google.golang.org/grpc v1.49.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.2.0

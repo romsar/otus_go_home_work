@@ -1,17 +1,42 @@
 version: '3'
 services:
-#  app:
-#    container_name: app
-#    build: .
-#    ports:
-#      - 8080:8080
-#    restart: on-failure
-#    volumes:
-#      - .:/app
-#    depends_on:
-#      - postgres
-#    networks:
-#      - calendar
+  calendar:
+    container_name: calendar
+    build:
+      context: ../
+      dockerfile: ./build/calendar.Dockerfile
+    ports:
+      - "8080:8080"
+    restart: always
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - calendar
+
+  scheduler:
+    container_name: scheduler
+    build:
+      context: ../
+      dockerfile: ./build/scheduler.Dockerfile
+    restart: always
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - calendar
+
+  sender:
+    container_name: sender
+    build:
+      context: ../
+      dockerfile: ./build/sender.Dockerfile
+    restart: always
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - calendar
 
   postgres:
     image: postgres:latest

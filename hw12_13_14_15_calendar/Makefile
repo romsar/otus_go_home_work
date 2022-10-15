@@ -36,6 +36,13 @@ run-scheduler:
 run-sender:
 	go run ./cmd/calendar_sender --config=.env
 
+up:
+	cp -n .env.example .env || true
+	docker-compose -f ./deployments/docker-compose.yml --env-file .env up -d --build
+
+down:
+	docker-compose -f ./deployments/docker-compose.yml --env-file .env stop
+
 test:
 	go test -race ./...
 
