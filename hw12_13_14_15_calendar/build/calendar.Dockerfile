@@ -6,11 +6,11 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 
-COPY .  .
+COPY . .
 
-ARG CGO_ENABLED=0
-ARG GOOS=linux
-ARG GOARCH=amd64
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
 
 RUN go build -o ./calendar ./cmd/calendar
 
@@ -20,4 +20,6 @@ WORKDIR /app
 
 COPY --from=builder /app .
 
-CMD ["./calendar"]
+ENTRYPOINT ["./calendar"]
+
+EXPOSE 8080 8081

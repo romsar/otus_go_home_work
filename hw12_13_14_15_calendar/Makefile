@@ -38,13 +38,16 @@ run-sender:
 
 up:
 	cp -n .env.example .env || true
-	docker-compose -f ./deployments/docker-compose.yml --env-file .env up -d --build
+	docker-compose -f ./deployments/docker-compose.yml --env-file .env -p calendar up -d --build
 
 down:
-	docker-compose -f ./deployments/docker-compose.yml --env-file .env stop
+	docker-compose -f ./deployments/docker-compose.yml --env-file .env -p calendar stop
 
 test:
-	go test -race ./...
+	go test -race -v ./...
+
+integration-tests:
+	chmod +x ./scripts/run-integration-test.sh && ./scripts/run-integration-test.sh
 
 install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.41.1

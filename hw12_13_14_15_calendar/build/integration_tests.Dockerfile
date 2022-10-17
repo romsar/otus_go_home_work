@@ -12,12 +12,4 @@ ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOARCH=amd64
 
-RUN go build -o ./calendar_scheduler ./cmd/calendar_scheduler
-
-FROM scratch
-
-WORKDIR /app
-
-COPY --from=builder /app .
-
-ENTRYPOINT ["./calendar_scheduler"]
+ENTRYPOINT go test -tags integration ./tests/integration/...

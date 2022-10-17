@@ -104,6 +104,11 @@ func run(cfg *config.Config) error {
 	default:
 		return fmt.Errorf("database driver `%s` not found", cfg.DBDriver)
 	}
+	fmt.Println(kafka.ReaderConfig{
+		Brokers: cfg.Kafka.Brokers,
+		GroupID: cfg.Kafka.GroupID,
+		Topic:   cfg.Kafka.SenderTopic,
+	})
 
 	r := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: cfg.Kafka.Brokers,

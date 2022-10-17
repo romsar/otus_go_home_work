@@ -1,5 +1,26 @@
 version: '3'
 services:
+  integration_tests:
+    container_name: integration_tests
+    build:
+      context: ../
+      dockerfile: ./build/integration_tests.Dockerfile
+    environment:
+      GRPC_ADDRESS: calendar:8081
+      POSTGRES_ADDRESS: postgres:5432
+      POSTGRES_USER: calendar
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: calendar
+    restart: "no"
+    depends_on:
+      - postgres
+      - kafka
+      - calendar
+      - scheduler
+      - sender
+    networks:
+      - calendar
+
   calendar:
     container_name: calendar
     build:
@@ -16,7 +37,7 @@ services:
     networks:
       - calendar
     command:
-      - "--config=.env"
+      - "--config=.env.testing"
 
   scheduler:
     container_name: scheduler
@@ -31,7 +52,7 @@ services:
     networks:
       - calendar
     command:
-      - "--config=.env"
+      - "--config=.env.testing"
 
   sender:
     container_name: sender
@@ -46,7 +67,7 @@ services:
     networks:
       - calendar
     command:
-      - "--config=.env"
+      - "--config=.env.testing"
 
   postgres:
     image: postgres:latest
