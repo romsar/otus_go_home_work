@@ -28,18 +28,18 @@ func New(m calendar.Model) *Server {
 var _ event.EventServiceServer = (*Server)(nil)
 
 func (s *Server) CreateEventV1(ctx context.Context, req *event.CreateEventRequestV1) (*event.EventResponseV1, error) {
-	userID, err := uuid.Parse(req.UserId)
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
 	e, err := s.m.CreateEvent(ctx, &calendar.Event{
-		Title:                req.Title,
-		Description:          req.Description,
-		StartAt:              time.Unix(req.StartAt, 0),
-		EndAt:                time.Unix(req.EndAt, 0),
+		Title:                req.GetTitle(),
+		Description:          req.GetDescription(),
+		StartAt:              time.Unix(req.GetStartAt(), 0),
+		EndAt:                time.Unix(req.GetEndAt(), 0),
 		UserID:               userID,
-		NotificationDuration: req.NotificationDuration,
+		NotificationDuration: req.GetNotificationDuration(),
 	})
 	if err != nil {
 		if errors.Is(err, calendar.ErrDateBusy) {
@@ -63,23 +63,23 @@ func (s *Server) CreateEventV1(ctx context.Context, req *event.CreateEventReques
 }
 
 func (s *Server) UpdateEventV1(ctx context.Context, req *event.UpdateEventRequestV1) (*event.EventResponseV1, error) {
-	userID, err := uuid.Parse(req.UserId)
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	ID, err := uuid.Parse(req.Id)
+	ID, err := uuid.Parse(req.GetId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid uuid")
 	}
 
 	e, err := s.m.UpdateEvent(ctx, ID, &calendar.Event{
-		Title:                req.Title,
-		Description:          req.Description,
-		StartAt:              time.Unix(req.StartAt, 0),
-		EndAt:                time.Unix(req.EndAt, 0),
+		Title:                req.GetTitle(),
+		Description:          req.GetDescription(),
+		StartAt:              time.Unix(req.GetStartAt(), 0),
+		EndAt:                time.Unix(req.GetEndAt(), 0),
 		UserID:               userID,
-		NotificationDuration: req.NotificationDuration,
+		NotificationDuration: req.GetNotificationDuration(),
 	})
 	if err != nil {
 		if errors.Is(err, calendar.ErrDateBusy) {
@@ -103,7 +103,7 @@ func (s *Server) UpdateEventV1(ctx context.Context, req *event.UpdateEventReques
 }
 
 func (s *Server) DeleteEventV1(ctx context.Context, req *event.DeleteEventRequestV1) (*emptypb.Empty, error) {
-	ID, err := uuid.Parse(req.Id)
+	ID, err := uuid.Parse(req.GetId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid uuid")
 	}
@@ -116,12 +116,12 @@ func (s *Server) DeleteEventV1(ctx context.Context, req *event.DeleteEventReques
 }
 
 func (s *Server) GetEventsForDayV1(ctx context.Context, req *event.GetEventsForDayRequestV1) (*event.EventsResponseV1, error) {
-	userID, err := uuid.Parse(req.UserId)
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	date, err := time.Parse("2006-01-02", req.Date)
+	date, err := time.Parse("2006-01-02", req.GetDate())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid date")
 	}
@@ -162,12 +162,12 @@ func (s *Server) GetEventsForDayV1(ctx context.Context, req *event.GetEventsForD
 }
 
 func (s *Server) GetEventsForWeekV1(ctx context.Context, req *event.GetEventsForWeekRequestV1) (*event.EventsResponseV1, error) {
-	userID, err := uuid.Parse(req.UserId)
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	date, err := time.Parse("2006-01-02", req.StartDate)
+	date, err := time.Parse("2006-01-02", req.GetStartDate())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid date")
 	}
@@ -208,12 +208,12 @@ func (s *Server) GetEventsForWeekV1(ctx context.Context, req *event.GetEventsFor
 }
 
 func (s *Server) GetEventsForMonthV1(ctx context.Context, req *event.GetEventsForMonthRequestV1) (*event.EventsResponseV1, error) {
-	userID, err := uuid.Parse(req.UserId)
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	date, err := time.Parse("2006-01-02", req.StartDate)
+	date, err := time.Parse("2006-01-02", req.GetStartDate())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid date")
 	}
