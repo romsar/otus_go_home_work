@@ -6,6 +6,8 @@ import (
 	context "context"
 
 	event "github.com/RomanSarvarov/otus_go_home_work/calendar/proto/event"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,15 +17,15 @@ type EventServiceServer struct {
 }
 
 // CreateEventV1 provides a mock function with given fields: _a0, _a1
-func (_m *EventServiceServer) CreateEventV1(_a0 context.Context, _a1 *event.CreateEventRequestV1) (*event.EventReplyV1, error) {
+func (_m *EventServiceServer) CreateEventV1(_a0 context.Context, _a1 *event.CreateEventRequestV1) (*event.EventResponseV1, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 *event.EventReplyV1
-	if rf, ok := ret.Get(0).(func(context.Context, *event.CreateEventRequestV1) *event.EventReplyV1); ok {
+	var r0 *event.EventResponseV1
+	if rf, ok := ret.Get(0).(func(context.Context, *event.CreateEventRequestV1) *event.EventResponseV1); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*event.EventReplyV1)
+			r0 = ret.Get(0).(*event.EventResponseV1)
 		}
 	}
 
@@ -38,15 +40,15 @@ func (_m *EventServiceServer) CreateEventV1(_a0 context.Context, _a1 *event.Crea
 }
 
 // DeleteEventV1 provides a mock function with given fields: _a0, _a1
-func (_m *EventServiceServer) DeleteEventV1(_a0 context.Context, _a1 *event.DeleteEventRequestV1) (*event.DeleteEventReplyV1, error) {
+func (_m *EventServiceServer) DeleteEventV1(_a0 context.Context, _a1 *event.DeleteEventRequestV1) (*emptypb.Empty, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 *event.DeleteEventReplyV1
-	if rf, ok := ret.Get(0).(func(context.Context, *event.DeleteEventRequestV1) *event.DeleteEventReplyV1); ok {
+	var r0 *emptypb.Empty
+	if rf, ok := ret.Get(0).(func(context.Context, *event.DeleteEventRequestV1) *emptypb.Empty); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*event.DeleteEventReplyV1)
+			r0 = ret.Get(0).(*emptypb.Empty)
 		}
 	}
 
@@ -61,15 +63,15 @@ func (_m *EventServiceServer) DeleteEventV1(_a0 context.Context, _a1 *event.Dele
 }
 
 // GetEventsForDayV1 provides a mock function with given fields: _a0, _a1
-func (_m *EventServiceServer) GetEventsForDayV1(_a0 context.Context, _a1 *event.GetEventsForDayRequestV1) (*event.EventsReplyV1, error) {
+func (_m *EventServiceServer) GetEventsForDayV1(_a0 context.Context, _a1 *event.GetEventsForDayRequestV1) (*event.EventsResponseV1, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 *event.EventsReplyV1
-	if rf, ok := ret.Get(0).(func(context.Context, *event.GetEventsForDayRequestV1) *event.EventsReplyV1); ok {
+	var r0 *event.EventsResponseV1
+	if rf, ok := ret.Get(0).(func(context.Context, *event.GetEventsForDayRequestV1) *event.EventsResponseV1); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*event.EventsReplyV1)
+			r0 = ret.Get(0).(*event.EventsResponseV1)
 		}
 	}
 
@@ -84,15 +86,15 @@ func (_m *EventServiceServer) GetEventsForDayV1(_a0 context.Context, _a1 *event.
 }
 
 // GetEventsForMonthV1 provides a mock function with given fields: _a0, _a1
-func (_m *EventServiceServer) GetEventsForMonthV1(_a0 context.Context, _a1 *event.GetEventsForMonthRequestV1) (*event.EventsReplyV1, error) {
+func (_m *EventServiceServer) GetEventsForMonthV1(_a0 context.Context, _a1 *event.GetEventsForMonthRequestV1) (*event.EventsResponseV1, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 *event.EventsReplyV1
-	if rf, ok := ret.Get(0).(func(context.Context, *event.GetEventsForMonthRequestV1) *event.EventsReplyV1); ok {
+	var r0 *event.EventsResponseV1
+	if rf, ok := ret.Get(0).(func(context.Context, *event.GetEventsForMonthRequestV1) *event.EventsResponseV1); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*event.EventsReplyV1)
+			r0 = ret.Get(0).(*event.EventsResponseV1)
 		}
 	}
 
@@ -107,15 +109,15 @@ func (_m *EventServiceServer) GetEventsForMonthV1(_a0 context.Context, _a1 *even
 }
 
 // GetEventsForWeekV1 provides a mock function with given fields: _a0, _a1
-func (_m *EventServiceServer) GetEventsForWeekV1(_a0 context.Context, _a1 *event.GetEventsForWeekRequestV1) (*event.EventsReplyV1, error) {
+func (_m *EventServiceServer) GetEventsForWeekV1(_a0 context.Context, _a1 *event.GetEventsForWeekRequestV1) (*event.EventsResponseV1, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 *event.EventsReplyV1
-	if rf, ok := ret.Get(0).(func(context.Context, *event.GetEventsForWeekRequestV1) *event.EventsReplyV1); ok {
+	var r0 *event.EventsResponseV1
+	if rf, ok := ret.Get(0).(func(context.Context, *event.GetEventsForWeekRequestV1) *event.EventsResponseV1); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*event.EventsReplyV1)
+			r0 = ret.Get(0).(*event.EventsResponseV1)
 		}
 	}
 
@@ -130,15 +132,15 @@ func (_m *EventServiceServer) GetEventsForWeekV1(_a0 context.Context, _a1 *event
 }
 
 // UpdateEventV1 provides a mock function with given fields: _a0, _a1
-func (_m *EventServiceServer) UpdateEventV1(_a0 context.Context, _a1 *event.UpdateEventRequestV1) (*event.EventReplyV1, error) {
+func (_m *EventServiceServer) UpdateEventV1(_a0 context.Context, _a1 *event.UpdateEventRequestV1) (*event.EventResponseV1, error) {
 	ret := _m.Called(_a0, _a1)
 
-	var r0 *event.EventReplyV1
-	if rf, ok := ret.Get(0).(func(context.Context, *event.UpdateEventRequestV1) *event.EventReplyV1); ok {
+	var r0 *event.EventResponseV1
+	if rf, ok := ret.Get(0).(func(context.Context, *event.UpdateEventRequestV1) *event.EventResponseV1); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*event.EventReplyV1)
+			r0 = ret.Get(0).(*event.EventResponseV1)
 		}
 	}
 
