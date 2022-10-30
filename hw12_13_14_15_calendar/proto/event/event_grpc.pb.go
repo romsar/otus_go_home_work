@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,12 +23,12 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EventServiceClient interface {
-	CreateEventV1(ctx context.Context, in *CreateEventRequestV1, opts ...grpc.CallOption) (*EventReplyV1, error)
-	UpdateEventV1(ctx context.Context, in *UpdateEventRequestV1, opts ...grpc.CallOption) (*EventReplyV1, error)
-	DeleteEventV1(ctx context.Context, in *DeleteEventRequestV1, opts ...grpc.CallOption) (*DeleteEventReplyV1, error)
-	GetEventsForDayV1(ctx context.Context, in *GetEventsForDayRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error)
-	GetEventsForWeekV1(ctx context.Context, in *GetEventsForWeekRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error)
-	GetEventsForMonthV1(ctx context.Context, in *GetEventsForMonthRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error)
+	CreateEventV1(ctx context.Context, in *CreateEventRequestV1, opts ...grpc.CallOption) (*EventResponseV1, error)
+	UpdateEventV1(ctx context.Context, in *UpdateEventRequestV1, opts ...grpc.CallOption) (*EventResponseV1, error)
+	DeleteEventV1(ctx context.Context, in *DeleteEventRequestV1, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetEventsForDayV1(ctx context.Context, in *GetEventsForDayRequestV1, opts ...grpc.CallOption) (*EventsResponseV1, error)
+	GetEventsForWeekV1(ctx context.Context, in *GetEventsForWeekRequestV1, opts ...grpc.CallOption) (*EventsResponseV1, error)
+	GetEventsForMonthV1(ctx context.Context, in *GetEventsForMonthRequestV1, opts ...grpc.CallOption) (*EventsResponseV1, error)
 }
 
 type eventServiceClient struct {
@@ -38,8 +39,8 @@ func NewEventServiceClient(cc grpc.ClientConnInterface) EventServiceClient {
 	return &eventServiceClient{cc}
 }
 
-func (c *eventServiceClient) CreateEventV1(ctx context.Context, in *CreateEventRequestV1, opts ...grpc.CallOption) (*EventReplyV1, error) {
-	out := new(EventReplyV1)
+func (c *eventServiceClient) CreateEventV1(ctx context.Context, in *CreateEventRequestV1, opts ...grpc.CallOption) (*EventResponseV1, error) {
+	out := new(EventResponseV1)
 	err := c.cc.Invoke(ctx, "/event.EventService/CreateEventV1", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -47,8 +48,8 @@ func (c *eventServiceClient) CreateEventV1(ctx context.Context, in *CreateEventR
 	return out, nil
 }
 
-func (c *eventServiceClient) UpdateEventV1(ctx context.Context, in *UpdateEventRequestV1, opts ...grpc.CallOption) (*EventReplyV1, error) {
-	out := new(EventReplyV1)
+func (c *eventServiceClient) UpdateEventV1(ctx context.Context, in *UpdateEventRequestV1, opts ...grpc.CallOption) (*EventResponseV1, error) {
+	out := new(EventResponseV1)
 	err := c.cc.Invoke(ctx, "/event.EventService/UpdateEventV1", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -56,8 +57,8 @@ func (c *eventServiceClient) UpdateEventV1(ctx context.Context, in *UpdateEventR
 	return out, nil
 }
 
-func (c *eventServiceClient) DeleteEventV1(ctx context.Context, in *DeleteEventRequestV1, opts ...grpc.CallOption) (*DeleteEventReplyV1, error) {
-	out := new(DeleteEventReplyV1)
+func (c *eventServiceClient) DeleteEventV1(ctx context.Context, in *DeleteEventRequestV1, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/event.EventService/DeleteEventV1", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -65,8 +66,8 @@ func (c *eventServiceClient) DeleteEventV1(ctx context.Context, in *DeleteEventR
 	return out, nil
 }
 
-func (c *eventServiceClient) GetEventsForDayV1(ctx context.Context, in *GetEventsForDayRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error) {
-	out := new(EventsReplyV1)
+func (c *eventServiceClient) GetEventsForDayV1(ctx context.Context, in *GetEventsForDayRequestV1, opts ...grpc.CallOption) (*EventsResponseV1, error) {
+	out := new(EventsResponseV1)
 	err := c.cc.Invoke(ctx, "/event.EventService/GetEventsForDayV1", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -74,8 +75,8 @@ func (c *eventServiceClient) GetEventsForDayV1(ctx context.Context, in *GetEvent
 	return out, nil
 }
 
-func (c *eventServiceClient) GetEventsForWeekV1(ctx context.Context, in *GetEventsForWeekRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error) {
-	out := new(EventsReplyV1)
+func (c *eventServiceClient) GetEventsForWeekV1(ctx context.Context, in *GetEventsForWeekRequestV1, opts ...grpc.CallOption) (*EventsResponseV1, error) {
+	out := new(EventsResponseV1)
 	err := c.cc.Invoke(ctx, "/event.EventService/GetEventsForWeekV1", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -83,8 +84,8 @@ func (c *eventServiceClient) GetEventsForWeekV1(ctx context.Context, in *GetEven
 	return out, nil
 }
 
-func (c *eventServiceClient) GetEventsForMonthV1(ctx context.Context, in *GetEventsForMonthRequestV1, opts ...grpc.CallOption) (*EventsReplyV1, error) {
-	out := new(EventsReplyV1)
+func (c *eventServiceClient) GetEventsForMonthV1(ctx context.Context, in *GetEventsForMonthRequestV1, opts ...grpc.CallOption) (*EventsResponseV1, error) {
+	out := new(EventsResponseV1)
 	err := c.cc.Invoke(ctx, "/event.EventService/GetEventsForMonthV1", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -96,12 +97,12 @@ func (c *eventServiceClient) GetEventsForMonthV1(ctx context.Context, in *GetEve
 // All implementations must embed UnimplementedEventServiceServer
 // for forward compatibility
 type EventServiceServer interface {
-	CreateEventV1(context.Context, *CreateEventRequestV1) (*EventReplyV1, error)
-	UpdateEventV1(context.Context, *UpdateEventRequestV1) (*EventReplyV1, error)
-	DeleteEventV1(context.Context, *DeleteEventRequestV1) (*DeleteEventReplyV1, error)
-	GetEventsForDayV1(context.Context, *GetEventsForDayRequestV1) (*EventsReplyV1, error)
-	GetEventsForWeekV1(context.Context, *GetEventsForWeekRequestV1) (*EventsReplyV1, error)
-	GetEventsForMonthV1(context.Context, *GetEventsForMonthRequestV1) (*EventsReplyV1, error)
+	CreateEventV1(context.Context, *CreateEventRequestV1) (*EventResponseV1, error)
+	UpdateEventV1(context.Context, *UpdateEventRequestV1) (*EventResponseV1, error)
+	DeleteEventV1(context.Context, *DeleteEventRequestV1) (*emptypb.Empty, error)
+	GetEventsForDayV1(context.Context, *GetEventsForDayRequestV1) (*EventsResponseV1, error)
+	GetEventsForWeekV1(context.Context, *GetEventsForWeekRequestV1) (*EventsResponseV1, error)
+	GetEventsForMonthV1(context.Context, *GetEventsForMonthRequestV1) (*EventsResponseV1, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
 
@@ -109,22 +110,22 @@ type EventServiceServer interface {
 type UnimplementedEventServiceServer struct {
 }
 
-func (UnimplementedEventServiceServer) CreateEventV1(context.Context, *CreateEventRequestV1) (*EventReplyV1, error) {
+func (UnimplementedEventServiceServer) CreateEventV1(context.Context, *CreateEventRequestV1) (*EventResponseV1, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateEventV1 not implemented")
 }
-func (UnimplementedEventServiceServer) UpdateEventV1(context.Context, *UpdateEventRequestV1) (*EventReplyV1, error) {
+func (UnimplementedEventServiceServer) UpdateEventV1(context.Context, *UpdateEventRequestV1) (*EventResponseV1, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateEventV1 not implemented")
 }
-func (UnimplementedEventServiceServer) DeleteEventV1(context.Context, *DeleteEventRequestV1) (*DeleteEventReplyV1, error) {
+func (UnimplementedEventServiceServer) DeleteEventV1(context.Context, *DeleteEventRequestV1) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteEventV1 not implemented")
 }
-func (UnimplementedEventServiceServer) GetEventsForDayV1(context.Context, *GetEventsForDayRequestV1) (*EventsReplyV1, error) {
+func (UnimplementedEventServiceServer) GetEventsForDayV1(context.Context, *GetEventsForDayRequestV1) (*EventsResponseV1, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEventsForDayV1 not implemented")
 }
-func (UnimplementedEventServiceServer) GetEventsForWeekV1(context.Context, *GetEventsForWeekRequestV1) (*EventsReplyV1, error) {
+func (UnimplementedEventServiceServer) GetEventsForWeekV1(context.Context, *GetEventsForWeekRequestV1) (*EventsResponseV1, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEventsForWeekV1 not implemented")
 }
-func (UnimplementedEventServiceServer) GetEventsForMonthV1(context.Context, *GetEventsForMonthRequestV1) (*EventsReplyV1, error) {
+func (UnimplementedEventServiceServer) GetEventsForMonthV1(context.Context, *GetEventsForMonthRequestV1) (*EventsResponseV1, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEventsForMonthV1 not implemented")
 }
 func (UnimplementedEventServiceServer) mustEmbedUnimplementedEventServiceServer() {}

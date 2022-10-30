@@ -44,7 +44,7 @@ down:
 	docker-compose -f ./deployments/docker-compose.yml --env-file .env -p calendar stop
 
 test:
-	go test -race -v ./...
+	go test -race -count 10 ./...
 
 integration-tests:
 	chmod +x ./scripts/run-integration-test.sh && ./scripts/run-integration-test.sh

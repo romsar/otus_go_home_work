@@ -67,14 +67,12 @@ func (s *EventSuite) TestCreateEvent() {
 		s.Require().NoError(err)
 
 		resp, err := s.eventClient.CreateEventV1(s.ctx, &event.CreateEventRequestV1{
-			Event: &event.EventV1{
-				Title:                "foo",
-				Description:          "bar",
-				StartAt:              1664643702,
-				EndAt:                1664644150,
-				UserId:               "ef0d2079-e9a2-4810-8cae-eb6729c50580",
-				NotificationDuration: 25,
-			},
+			Title:                "foo",
+			Description:          "bar",
+			StartAt:              1664643702,
+			EndAt:                1664644150,
+			UserId:               "ef0d2079-e9a2-4810-8cae-eb6729c50580",
+			NotificationDuration: 25,
 		})
 		s.Require().NoError(err)
 		s.Require().NotEmpty(resp.Event.Id)
@@ -109,14 +107,12 @@ func (s *EventSuite) TestCreateEvent() {
 		s.Require().NoError(err)
 
 		_, err = s.eventClient.CreateEventV1(s.ctx, &event.CreateEventRequestV1{
-			Event: &event.EventV1{
-				Title:                "foo",
-				Description:          "bar",
-				StartAt:              1664643900,
-				EndAt:                1664644000,
-				UserId:               "ef0d2079-e9a2-4810-8cae-eb6729c50580",
-				NotificationDuration: 25,
-			},
+			Title:                "foo",
+			Description:          "bar",
+			StartAt:              1664643900,
+			EndAt:                1664644000,
+			UserId:               "ef0d2079-e9a2-4810-8cae-eb6729c50580",
+			NotificationDuration: 25,
 		})
 		s.Require().Equal(codes.InvalidArgument, status.Code(err))
 
@@ -136,14 +132,12 @@ func (s *EventSuite) TestCreateEvent() {
 		s.SetupTest()
 
 		_, err := s.eventClient.CreateEventV1(s.ctx, &event.CreateEventRequestV1{
-			Event: &event.EventV1{
-				Title:                "foo",
-				Description:          "bar",
-				StartAt:              1664643900,
-				EndAt:                1664644000,
-				UserId:               "",
-				NotificationDuration: 25,
-			},
+			Title:                "foo",
+			Description:          "bar",
+			StartAt:              1664643900,
+			EndAt:                1664644000,
+			UserId:               "",
+			NotificationDuration: 25,
 		})
 		s.Require().Equal(codes.InvalidArgument, status.Code(err))
 
