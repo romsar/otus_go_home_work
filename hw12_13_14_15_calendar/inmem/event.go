@@ -17,6 +17,9 @@ func (repo *Repository) CreateEvent(ctx context.Context, e *calendar.Event) (*ca
 
 	e.ID = uuid.New()
 
+	repo.eventMu.Lock()
+	defer repo.eventMu.Unlock()
+
 	repo.events[e.ID] = e
 
 	return e, nil
@@ -32,6 +35,9 @@ func (repo *Repository) UpdateEvent(ctx context.Context, id uuid.UUID, e *calend
 		return nil, errors.Wrap(err, "update event")
 	}
 
+	repo.eventMu.Lock()
+	defer repo.eventMu.Unlock()
+
 	repo.events[id] = e
 	repo.events[id].ID = id
 
@@ -44,6 +50,9 @@ func (repo *Repository) DeleteEvent(ctx context.Context, id uuid.UUID) error {
 		return errors.Wrap(err, "delete event")
 	}
 
+	repo.eventMu.Lock()
+	defer repo.eventMu.Unlock()
+
 	delete(repo.events, id)
 
 	return nil
@@ -51,6 +60,9 @@ func (repo *Repository) DeleteEvent(ctx context.Context, id uuid.UUID) error {
 
 // FindEvents находит события по критериям.
 func (repo *Repository) FindEvents(ctx context.Context, filter calendar.EventFilter) ([]*calendar.Event, error) {
+	repo.eventMu.Lock()
+	defer repo.eventMu.Unlock()
+
 	res := make([]*calendar.Event, 0)
 
 	for _, e := range repo.events {
@@ -76,6 +88,9 @@ func (repo *Repository) FindEventByID(ctx context.Context, id uuid.UUID) (*calen
 
 // findEventByID находит событие по ID.
 func (repo *Repository) findEventByID(id uuid.UUID) (*calendar.Event, error) {
+	repo.eventMu.Lock()
+	defer repo.eventMu.Unlock()
+
 	event, exists := repo.events[id]
 	if !exists {
 		return nil, calendar.ErrNotFound
@@ -108,6 +123,9 @@ func (repo *Repository) checkDateBusy(event *calendar.Event, ID ...uuid.UUID) er
 	if len(ID) > 0 {
 		ignore = ID[0]
 	}
+	
+	repo.eventMu.Lock()
+	defer repo.eventMu.Unlock()
 
 	for _, e := range repo.events {
 		if e.ID == ignore {

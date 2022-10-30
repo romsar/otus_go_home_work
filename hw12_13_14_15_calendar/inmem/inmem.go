@@ -1,6 +1,8 @@
 package inmem
 
 import (
+	"sync"
+
 	"github.com/google/uuid"
 
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
@@ -14,7 +16,8 @@ type eventsMap map[uuid.UUID]*calendar.Event
 
 // Repository реализует in-memory хранилище.
 type Repository struct {
-	events eventsMap
+	eventMu sync.Mutex
+	events  eventsMap
 }
 
 // New создает in-memory хранилище.

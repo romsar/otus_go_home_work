@@ -3,21 +3,29 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	grpczerolog "github.com/philip-bui/grpc-zerolog"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/rs/zerolog/log"
 	flag "github.com/spf13/pflag"
 
+	"google.golang.org/grpc"
+
+	"github.com/RomanSarvarov/otus_go_home_work/calendar"
+	grpcapi "github.com/RomanSarvarov/otus_go_home_work/calendar/api/grpc"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/api/rest"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/inmem"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/pkg/closer"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/postgres"
+	"github.com/RomanSarvarov/otus_go_home_work/calendar/proto/event"
 )
 
 // migrationsDir определяет местонахождение миграций.
@@ -66,11 +74,11 @@ func run(config *Config) error {
 		Debug().
 		Msg("start application")
 
-	var restModel rest.Model
+	var model calendar.Model
 
 	switch config.DBDriver {
 	case inmem.Key:
-		restModel = inmem.New()
+		model = inmem.New()
 	case postgres.Key:
 		log.
 			Debug().
@@ -109,19 +117,24 @@ func run(config *Config) error {
 			return err
 		}
 
-		restModel = repo
+		model = repo
 	default:
 		return fmt.Errorf("database driver `%s` not found", config.DBDriver)
 	}
 
-	srv := newRESTServer(config.REST, restModel)
+	// Start REST.
+	mux := runtime.NewServeMux()
+	restSrv := &http.Server{
+		Addr:    config.REST.Address,
+		Handler: rest.LoggingMiddleware(mux),
+	}
 
 	closer.Add(func() error {
 		log.
 			Debug().
 			Msgf("terminating REST server")
 
-		if err := srv.Close(ctx); err != nil && !errors.Is(err, context.Canceled) {
+		if err := restSrv.Close(); err != nil && !errors.Is(err, context.Canceled) {
 			return err
 		}
 
@@ -133,8 +146,47 @@ func run(config *Config) error {
 			Debug().
 			Msgf("starting REST server on: `%s`", config.REST.Address)
 
-		err := srv.Listen(rest.LoggingMiddleware)
+		err := event.RegisterEventServiceHandlerServer(context.Background(), mux, grpcapi.New(model))
+		if err != nil {
+			return errors.Wrap(err, "register event service handler server")
+		}
+
+		err = restSrv.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
+		return nil
+	})
+
+	// Start GRPC.
+	lis, err := net.Listen("tcp", config.GRPC.Address)
+	if err != nil {
+		return errors.Wrap(err, "listen tcp for grpc")
+	}
+
+	grpcSrv := grpc.NewServer(
+		grpczerolog.UnaryInterceptor(),
+	)
+
+	event.RegisterEventServiceServer(grpcSrv, grpcapi.New(model))
+
+	closer.Add(func() error {
+		log.
+			Debug().
+			Msgf("terminating GRPC server")
+
+		grpcSrv.GracefulStop()
+
+		return nil
+	})
+
+	errgrp.Go(func() error {
+		log.
+			Debug().
+			Msgf("starting GRPC server on: `%s`", config.GRPC.Address)
+
+		err := grpcSrv.Serve(lis)
+		if err != nil && !errors.Is(err, grpc.ErrServerStopped) {
 			return err
 		}
 		return nil
@@ -157,15 +209,6 @@ func run(config *Config) error {
 		Msg("application was stopped gracefully")
 
 	return nil
-}
-
-// newRESTServer создает REST сервер.
-func newRESTServer(config RESTConfig, model rest.Model) rest.Server {
-	serverCfg := rest.Config{
-		Address: config.Address,
-	}
-
-	return rest.New(serverCfg, model)
 }
 
 // parseFlags возвращает флаги запуска.

@@ -29,7 +29,7 @@ run:
 	go run ./cmd/calendar --config=.env
 
 test:
-	go test -race ./...
+	go test -race -count 10 ./...
 
 install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.41.1
@@ -37,4 +37,7 @@ install-lint-deps:
 lint: install-lint-deps
 	golangci-lint run ./...
 
-.PHONY: build run build-img run-img version test lint
+generate:
+	go generate ./...
+
+.PHONY: build run build-img run-img version test lint proto generate
