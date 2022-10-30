@@ -65,7 +65,7 @@ func main() {
 	}
 }
 
-// run запускате приложение.
+// run запускает приложение.
 func run(cfg *config.Config) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
