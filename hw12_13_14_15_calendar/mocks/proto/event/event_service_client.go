@@ -6,6 +6,8 @@ import (
 	context "context"
 
 	event "github.com/RomanSarvarov/otus_go_home_work/calendar/proto/event"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
+
 	grpc "google.golang.org/grpc"
 
 	mock "github.com/stretchr/testify/mock"
@@ -17,7 +19,7 @@ type EventServiceClient struct {
 }
 
 // CreateEventV1 provides a mock function with given fields: ctx, in, opts
-func (_m *EventServiceClient) CreateEventV1(ctx context.Context, in *event.CreateEventRequestV1, opts ...grpc.CallOption) (*event.EventReplyV1, error) {
+func (_m *EventServiceClient) CreateEventV1(ctx context.Context, in *event.CreateEventRequestV1, opts ...grpc.CallOption) (*event.EventResponseV1, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -27,12 +29,12 @@ func (_m *EventServiceClient) CreateEventV1(ctx context.Context, in *event.Creat
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *event.EventReplyV1
-	if rf, ok := ret.Get(0).(func(context.Context, *event.CreateEventRequestV1, ...grpc.CallOption) *event.EventReplyV1); ok {
+	var r0 *event.EventResponseV1
+	if rf, ok := ret.Get(0).(func(context.Context, *event.CreateEventRequestV1, ...grpc.CallOption) *event.EventResponseV1); ok {
 		r0 = rf(ctx, in, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*event.EventReplyV1)
+			r0 = ret.Get(0).(*event.EventResponseV1)
 		}
 	}
 
@@ -47,7 +49,7 @@ func (_m *EventServiceClient) CreateEventV1(ctx context.Context, in *event.Creat
 }
 
 // DeleteEventV1 provides a mock function with given fields: ctx, in, opts
-func (_m *EventServiceClient) DeleteEventV1(ctx context.Context, in *event.DeleteEventRequestV1, opts ...grpc.CallOption) (*event.DeleteEventReplyV1, error) {
+func (_m *EventServiceClient) DeleteEventV1(ctx context.Context, in *event.DeleteEventRequestV1, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -57,12 +59,12 @@ func (_m *EventServiceClient) DeleteEventV1(ctx context.Context, in *event.Delet
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *event.DeleteEventReplyV1
-	if rf, ok := ret.Get(0).(func(context.Context, *event.DeleteEventRequestV1, ...grpc.CallOption) *event.DeleteEventReplyV1); ok {
+	var r0 *emptypb.Empty
+	if rf, ok := ret.Get(0).(func(context.Context, *event.DeleteEventRequestV1, ...grpc.CallOption) *emptypb.Empty); ok {
 		r0 = rf(ctx, in, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*event.DeleteEventReplyV1)
+			r0 = ret.Get(0).(*emptypb.Empty)
 		}
 	}
 
@@ -77,7 +79,7 @@ func (_m *EventServiceClient) DeleteEventV1(ctx context.Context, in *event.Delet
 }
 
 // GetEventsForDayV1 provides a mock function with given fields: ctx, in, opts
-func (_m *EventServiceClient) GetEventsForDayV1(ctx context.Context, in *event.GetEventsForDayRequestV1, opts ...grpc.CallOption) (*event.EventsReplyV1, error) {
+func (_m *EventServiceClient) GetEventsForDayV1(ctx context.Context, in *event.GetEventsForDayRequestV1, opts ...grpc.CallOption) (*event.EventsResponseV1, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -87,12 +89,12 @@ func (_m *EventServiceClient) GetEventsForDayV1(ctx context.Context, in *event.G
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *event.EventsReplyV1
-	if rf, ok := ret.Get(0).(func(context.Context, *event.GetEventsForDayRequestV1, ...grpc.CallOption) *event.EventsReplyV1); ok {
+	var r0 *event.EventsResponseV1
+	if rf, ok := ret.Get(0).(func(context.Context, *event.GetEventsForDayRequestV1, ...grpc.CallOption) *event.EventsResponseV1); ok {
 		r0 = rf(ctx, in, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*event.EventsReplyV1)
+			r0 = ret.Get(0).(*event.EventsResponseV1)
 		}
 	}
 
@@ -107,7 +109,7 @@ func (_m *EventServiceClient) GetEventsForDayV1(ctx context.Context, in *event.G
 }
 
 // GetEventsForMonthV1 provides a mock function with given fields: ctx, in, opts
-func (_m *EventServiceClient) GetEventsForMonthV1(ctx context.Context, in *event.GetEventsForMonthRequestV1, opts ...grpc.CallOption) (*event.EventsReplyV1, error) {
+func (_m *EventServiceClient) GetEventsForMonthV1(ctx context.Context, in *event.GetEventsForMonthRequestV1, opts ...grpc.CallOption) (*event.EventsResponseV1, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -117,12 +119,12 @@ func (_m *EventServiceClient) GetEventsForMonthV1(ctx context.Context, in *event
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *event.EventsReplyV1
-	if rf, ok := ret.Get(0).(func(context.Context, *event.GetEventsForMonthRequestV1, ...grpc.CallOption) *event.EventsReplyV1); ok {
+	var r0 *event.EventsResponseV1
+	if rf, ok := ret.Get(0).(func(context.Context, *event.GetEventsForMonthRequestV1, ...grpc.CallOption) *event.EventsResponseV1); ok {
 		r0 = rf(ctx, in, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*event.EventsReplyV1)
+			r0 = ret.Get(0).(*event.EventsResponseV1)
 		}
 	}
 
@@ -137,7 +139,7 @@ func (_m *EventServiceClient) GetEventsForMonthV1(ctx context.Context, in *event
 }
 
 // GetEventsForWeekV1 provides a mock function with given fields: ctx, in, opts
-func (_m *EventServiceClient) GetEventsForWeekV1(ctx context.Context, in *event.GetEventsForWeekRequestV1, opts ...grpc.CallOption) (*event.EventsReplyV1, error) {
+func (_m *EventServiceClient) GetEventsForWeekV1(ctx context.Context, in *event.GetEventsForWeekRequestV1, opts ...grpc.CallOption) (*event.EventsResponseV1, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -147,12 +149,12 @@ func (_m *EventServiceClient) GetEventsForWeekV1(ctx context.Context, in *event.
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *event.EventsReplyV1
-	if rf, ok := ret.Get(0).(func(context.Context, *event.GetEventsForWeekRequestV1, ...grpc.CallOption) *event.EventsReplyV1); ok {
+	var r0 *event.EventsResponseV1
+	if rf, ok := ret.Get(0).(func(context.Context, *event.GetEventsForWeekRequestV1, ...grpc.CallOption) *event.EventsResponseV1); ok {
 		r0 = rf(ctx, in, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*event.EventsReplyV1)
+			r0 = ret.Get(0).(*event.EventsResponseV1)
 		}
 	}
 
@@ -167,7 +169,7 @@ func (_m *EventServiceClient) GetEventsForWeekV1(ctx context.Context, in *event.
 }
 
 // UpdateEventV1 provides a mock function with given fields: ctx, in, opts
-func (_m *EventServiceClient) UpdateEventV1(ctx context.Context, in *event.UpdateEventRequestV1, opts ...grpc.CallOption) (*event.EventReplyV1, error) {
+func (_m *EventServiceClient) UpdateEventV1(ctx context.Context, in *event.UpdateEventRequestV1, opts ...grpc.CallOption) (*event.EventResponseV1, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -177,12 +179,12 @@ func (_m *EventServiceClient) UpdateEventV1(ctx context.Context, in *event.Updat
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
-	var r0 *event.EventReplyV1
-	if rf, ok := ret.Get(0).(func(context.Context, *event.UpdateEventRequestV1, ...grpc.CallOption) *event.EventReplyV1); ok {
+	var r0 *event.EventResponseV1
+	if rf, ok := ret.Get(0).(func(context.Context, *event.UpdateEventRequestV1, ...grpc.CallOption) *event.EventResponseV1); ok {
 		r0 = rf(ctx, in, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*event.EventReplyV1)
+			r0 = ret.Get(0).(*event.EventResponseV1)
 		}
 	}
 

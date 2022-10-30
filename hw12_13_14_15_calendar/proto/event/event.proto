@@ -3,38 +3,39 @@ syntax = "proto3";
 package event;
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 
 option go_package = "./;event";
 
 service EventService {
-  rpc CreateEventV1(CreateEventRequestV1) returns (EventReplyV1) {
+  rpc CreateEventV1(CreateEventRequestV1) returns (EventResponseV1) {
     option (google.api.http) = {
       post: "/events",
       body: "*"
     };
   }
-  rpc UpdateEventV1(UpdateEventRequestV1) returns (EventReplyV1) {
+  rpc UpdateEventV1(UpdateEventRequestV1) returns (EventResponseV1) {
     option (google.api.http) = {
       put: "/events/{id}",
       body: "*"
     };
   }
-  rpc DeleteEventV1(DeleteEventRequestV1) returns (DeleteEventReplyV1) {
+  rpc DeleteEventV1(DeleteEventRequestV1) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/events/{id}"
     };
   }
-  rpc GetEventsForDayV1(GetEventsForDayRequestV1) returns (EventsReplyV1) {
+  rpc GetEventsForDayV1(GetEventsForDayRequestV1) returns (EventsResponseV1) {
     option (google.api.http) = {
       get: "/events/day"
     };
   }
-  rpc GetEventsForWeekV1(GetEventsForWeekRequestV1) returns (EventsReplyV1) {
+  rpc GetEventsForWeekV1(GetEventsForWeekRequestV1) returns (EventsResponseV1) {
     option (google.api.http) = {
       get: "/events/week"
     };
   }
-  rpc GetEventsForMonthV1(GetEventsForMonthRequestV1) returns (EventsReplyV1) {
+  rpc GetEventsForMonthV1(GetEventsForMonthRequestV1) returns (EventsResponseV1) {
     option (google.api.http) = {
       get: "/events/month"
     };
@@ -52,12 +53,22 @@ message EventV1 {
 }
 
 message CreateEventRequestV1 {
-  EventV1 event = 1;
+  string title = 1;
+  string description = 2;
+  int64  start_at = 3;
+  int64  end_at = 4;
+  string user_id = 5;
+  uint32 notification_duration = 6;
 }
 
 message UpdateEventRequestV1 {
   string id = 1;
-  EventV1 event = 2;
+  string title = 2;
+  string description = 3;
+  int64  start_at = 4;
+  int64  end_at = 5;
+  string user_id = 6;
+  uint32 notification_duration = 7;
 }
 
 message DeleteEventRequestV1 {
@@ -79,14 +90,10 @@ message GetEventsForMonthRequestV1 {
   string start_date = 2;
 }
 
-message EventReplyV1 {
+message EventResponseV1 {
   EventV1 event = 1;
 }
 
-message EventsReplyV1 {
+message EventsResponseV1 {
   repeated EventV1 events = 1;
-}
-
-message DeleteEventReplyV1 {
-  string message = 1;
 }

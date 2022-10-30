@@ -9,6 +9,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"google.golang.org/protobuf/types/known/emptypb"
+
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/proto/event"
 )
@@ -18,37 +20,37 @@ type Server struct {
 	event.UnimplementedEventServiceServer
 }
 
-func New(m calendar.Model) Server {
-	return Server{
+func New(m calendar.Model) *Server {
+	return &Server{
 		m: m,
 	}
 }
 
 var _ event.EventServiceServer = (*Server)(nil)
 
-func (s Server) CreateEventV1(ctx context.Context, req *event.CreateEventRequestV1) (*event.EventReplyV1, error) {
-	userID, err := uuid.Parse(req.Event.UserId)
+func (s *Server) CreateEventV1(ctx context.Context, req *event.CreateEventRequestV1) (*event.EventResponseV1, error) {
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
 	e, err := s.m.CreateEvent(ctx, &calendar.Event{
-		Title:                req.Event.Title,
-		Description:          req.Event.Description,
-		StartAt:              time.Unix(req.Event.StartAt, 0),
-		EndAt:                time.Unix(req.Event.EndAt, 0),
+		Title:                req.GetTitle(),
+		Description:          req.GetDescription(),
+		StartAt:              time.Unix(req.GetStartAt(), 0),
+		EndAt:                time.Unix(req.GetEndAt(), 0),
 		UserID:               userID,
-		NotificationDuration: req.Event.NotificationDuration,
+		NotificationDuration: req.GetNotificationDuration(),
 	})
 	if err != nil {
 		if errors.Is(err, calendar.ErrDateBusy) {
 			return nil, status.Error(codes.InvalidArgument, "that date is already taken by another event")
 		}
 
-		return nil, status.Error(codes.Unavailable, "error while creating event")
+		return nil, status.Error(codes.Unavailable, err.Error())
 	}
 
-	return &event.EventReplyV1{
+	return &event.EventResponseV1{
 		Event: &event.EventV1{
 			Id:                   e.ID.String(),
 			Title:                e.Title,
@@ -61,34 +63,34 @@ func (s Server) CreateEventV1(ctx context.Context, req *event.CreateEventRequest
 	}, nil
 }
 
-func (s Server) UpdateEventV1(ctx context.Context, req *event.UpdateEventRequestV1) (*event.EventReplyV1, error) {
-	userID, err := uuid.Parse(req.Event.UserId)
+func (s *Server) UpdateEventV1(ctx context.Context, req *event.UpdateEventRequestV1) (*event.EventResponseV1, error) {
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	ID, err := uuid.Parse(req.Id)
+	ID, err := uuid.Parse(req.GetId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid uuid")
 	}
 
 	e, err := s.m.UpdateEvent(ctx, ID, &calendar.Event{
-		Title:                req.Event.Title,
-		Description:          req.Event.Description,
-		StartAt:              time.Unix(req.Event.StartAt, 0),
-		EndAt:                time.Unix(req.Event.EndAt, 0),
+		Title:                req.GetTitle(),
+		Description:          req.GetDescription(),
+		StartAt:              time.Unix(req.GetStartAt(), 0),
+		EndAt:                time.Unix(req.GetEndAt(), 0),
 		UserID:               userID,
-		NotificationDuration: req.Event.NotificationDuration,
+		NotificationDuration: req.GetNotificationDuration(),
 	})
 	if err != nil {
 		if errors.Is(err, calendar.ErrDateBusy) {
 			return nil, status.Error(codes.InvalidArgument, "that date is already taken by another event")
 		}
 
-		return nil, status.Error(codes.Unavailable, "error while updating event")
+		return nil, status.Error(codes.Unavailable, err.Error())
 	}
 
-	return &event.EventReplyV1{
+	return &event.EventResponseV1{
 		Event: &event.EventV1{
 			Id:                   e.ID.String(),
 			Title:                e.Title,
@@ -101,28 +103,26 @@ func (s Server) UpdateEventV1(ctx context.Context, req *event.UpdateEventRequest
 	}, nil
 }
 
-func (s Server) DeleteEventV1(ctx context.Context, req *event.DeleteEventRequestV1) (*event.DeleteEventReplyV1, error) {
-	ID, err := uuid.Parse(req.Id)
+func (s *Server) DeleteEventV1(ctx context.Context, req *event.DeleteEventRequestV1) (*emptypb.Empty, error) {
+	ID, err := uuid.Parse(req.GetId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid uuid")
 	}
 
 	if err := s.m.DeleteEvent(ctx, ID); err != nil {
-		return nil, status.Error(codes.Unavailable, "error while deleting event")
+		return nil, status.Error(codes.Unavailable, err.Error())
 	}
 
-	return &event.DeleteEventReplyV1{
-		Message: "Событие было успешно удалено!",
-	}, nil
+	return &emptypb.Empty{}, nil
 }
 
-func (s Server) GetEventsForDayV1(ctx context.Context, req *event.GetEventsForDayRequestV1) (*event.EventsReplyV1, error) {
-	userID, err := uuid.Parse(req.UserId)
+func (s *Server) GetEventsForDayV1(ctx context.Context, req *event.GetEventsForDayRequestV1) (*event.EventsResponseV1, error) {
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	date, err := time.Parse("2006-01-02", req.Date)
+	date, err := time.Parse("2006-01-02", req.GetDate())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid date")
 	}
@@ -140,7 +140,7 @@ func (s Server) GetEventsForDayV1(ctx context.Context, req *event.GetEventsForDa
 		To:     to,
 	})
 	if err != nil {
-		return nil, status.Error(codes.Unavailable, "error while getting events for day")
+		return nil, status.Error(codes.Unavailable, err.Error())
 	}
 
 	result := make([]*event.EventV1, 0, len(events))
@@ -157,18 +157,18 @@ func (s Server) GetEventsForDayV1(ctx context.Context, req *event.GetEventsForDa
 		})
 	}
 
-	return &event.EventsReplyV1{
+	return &event.EventsResponseV1{
 		Events: result,
 	}, nil
 }
 
-func (s Server) GetEventsForWeekV1(ctx context.Context, req *event.GetEventsForWeekRequestV1) (*event.EventsReplyV1, error) {
-	userID, err := uuid.Parse(req.UserId)
+func (s *Server) GetEventsForWeekV1(ctx context.Context, req *event.GetEventsForWeekRequestV1) (*event.EventsResponseV1, error) {
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	date, err := time.Parse("2006-01-02", req.StartDate)
+	date, err := time.Parse("2006-01-02", req.GetStartDate())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid date")
 	}
@@ -186,7 +186,7 @@ func (s Server) GetEventsForWeekV1(ctx context.Context, req *event.GetEventsForW
 		To:     to,
 	})
 	if err != nil {
-		return nil, status.Error(codes.Unavailable, "error while getting events for week")
+		return nil, status.Error(codes.Unavailable, err.Error())
 	}
 
 	result := make([]*event.EventV1, 0, len(events))
@@ -203,18 +203,18 @@ func (s Server) GetEventsForWeekV1(ctx context.Context, req *event.GetEventsForW
 		})
 	}
 
-	return &event.EventsReplyV1{
+	return &event.EventsResponseV1{
 		Events: result,
 	}, nil
 }
 
-func (s Server) GetEventsForMonthV1(ctx context.Context, req *event.GetEventsForMonthRequestV1) (*event.EventsReplyV1, error) {
-	userID, err := uuid.Parse(req.UserId)
+func (s *Server) GetEventsForMonthV1(ctx context.Context, req *event.GetEventsForMonthRequestV1) (*event.EventsResponseV1, error) {
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	date, err := time.Parse("2006-01-02", req.StartDate)
+	date, err := time.Parse("2006-01-02", req.GetStartDate())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid date")
 	}
@@ -232,7 +232,7 @@ func (s Server) GetEventsForMonthV1(ctx context.Context, req *event.GetEventsFor
 		To:     to,
 	})
 	if err != nil {
-		return nil, status.Error(codes.Unavailable, "error while getting events for month")
+		return nil, status.Error(codes.Unavailable, err.Error())
 	}
 
 	result := make([]*event.EventV1, 0, len(events))
@@ -249,7 +249,7 @@ func (s Server) GetEventsForMonthV1(ctx context.Context, req *event.GetEventsFor
 		})
 	}
 
-	return &event.EventsReplyV1{
+	return &event.EventsResponseV1{
 		Events: result,
 	}, nil
 }

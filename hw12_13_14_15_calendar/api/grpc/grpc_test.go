@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/mocks"
@@ -20,14 +21,12 @@ func TestServer_CreateEventV1(t *testing.T) {
 		defer m.AssertExpectations(t)
 
 		req := &event.CreateEventRequestV1{
-			Event: &event.EventV1{
-				Title:                "foo",
-				Description:          "bar",
-				StartAt:              int64(1664643702),
-				EndAt:                int64(1664644150),
-				UserId:               "123e4567-e89b-12d3-a456-426614174000",
-				NotificationDuration: 30,
-			},
+			Title:                "foo",
+			Description:          "bar",
+			StartAt:              int64(1664643702),
+			EndAt:                int64(1664644150),
+			UserId:               "123e4567-e89b-12d3-a456-426614174000",
+			NotificationDuration: 30,
 		}
 
 		m.On("CreateEvent", mock.Anything, &calendar.Event{
@@ -51,7 +50,7 @@ func TestServer_CreateEventV1(t *testing.T) {
 		got, err := s.CreateEventV1(context.Background(), req)
 
 		require.NoError(t, err)
-		require.Equal(t, &event.EventReplyV1{
+		require.Equal(t, &event.EventResponseV1{
 			Event: &event.EventV1{
 				Id:                   "ef0d2079-e9a2-4810-8cae-eb6729c50580",
 				Title:                "foo",
@@ -71,15 +70,13 @@ func TestServer_UpdateEventV1(t *testing.T) {
 		defer m.AssertExpectations(t)
 
 		req := &event.UpdateEventRequestV1{
-			Id: "ef0d2079-e9a2-4810-8cae-eb6729c50580",
-			Event: &event.EventV1{
-				Title:                "foo",
-				Description:          "bar",
-				StartAt:              int64(1664643702),
-				EndAt:                int64(1664644150),
-				UserId:               "123e4567-e89b-12d3-a456-426614174000",
-				NotificationDuration: 30,
-			},
+			Id:                   "ef0d2079-e9a2-4810-8cae-eb6729c50580",
+			Title:                "foo",
+			Description:          "bar",
+			StartAt:              int64(1664643702),
+			EndAt:                int64(1664644150),
+			UserId:               "123e4567-e89b-12d3-a456-426614174000",
+			NotificationDuration: 30,
 		}
 
 		m.On("UpdateEvent", mock.Anything, uuid.MustParse("ef0d2079-e9a2-4810-8cae-eb6729c50580"), &calendar.Event{
@@ -103,7 +100,7 @@ func TestServer_UpdateEventV1(t *testing.T) {
 		got, err := s.UpdateEventV1(context.Background(), req)
 
 		require.NoError(t, err)
-		require.Equal(t, &event.EventReplyV1{
+		require.Equal(t, &event.EventResponseV1{
 			Event: &event.EventV1{
 				Id:                   "ef0d2079-e9a2-4810-8cae-eb6729c50580",
 				Title:                "foo",
@@ -134,9 +131,7 @@ func TestServer_DeleteEventV1(t *testing.T) {
 		got, err := s.DeleteEventV1(context.Background(), req)
 
 		require.NoError(t, err)
-		require.Equal(t, &event.DeleteEventReplyV1{
-			Message: "Событие было успешно удалено!",
-		}, got)
+		require.Equal(t, &emptypb.Empty{}, got)
 	})
 }
 
@@ -166,7 +161,7 @@ func TestServer_GetEventsForDayV1(t *testing.T) {
 		got, err := s.GetEventsForDayV1(context.Background(), req)
 
 		require.NoError(t, err)
-		require.Equal(t, &event.EventsReplyV1{
+		require.Equal(t, &event.EventsResponseV1{
 			Events: []*event.EventV1{
 				{
 					Id:                   "ef0d2079-e9a2-4810-8cae-eb6729c50580",
@@ -208,7 +203,7 @@ func TestServer_GetEventsForWeekV1(t *testing.T) {
 		got, err := s.GetEventsForWeekV1(context.Background(), req)
 
 		require.NoError(t, err)
-		require.Equal(t, &event.EventsReplyV1{
+		require.Equal(t, &event.EventsResponseV1{
 			Events: []*event.EventV1{
 				{
 					Id:                   "ef0d2079-e9a2-4810-8cae-eb6729c50580",
@@ -250,7 +245,7 @@ func TestServer_GetEventsForMonthV1(t *testing.T) {
 		got, err := s.GetEventsForMonthV1(context.Background(), req)
 
 		require.NoError(t, err)
-		require.Equal(t, &event.EventsReplyV1{
+		require.Equal(t, &event.EventsResponseV1{
 			Events: []*event.EventV1{
 				{
 					Id:                   "ef0d2079-e9a2-4810-8cae-eb6729c50580",
