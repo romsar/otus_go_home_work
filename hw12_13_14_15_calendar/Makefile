@@ -47,7 +47,7 @@ test:
 	go test -race -count 10 ./...
 
 integration-tests:
-	chmod +x ./scripts/run-integration-test.sh && ./scripts/run-integration-test.sh
+	sh ./scripts/run-integration-test.sh
 
 install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.41.1

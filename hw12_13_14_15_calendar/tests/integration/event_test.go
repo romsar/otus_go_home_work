@@ -298,7 +298,7 @@ func (s *EventSuite) TestSendEventNotification() {
 	_, err := s.pgConn.QueryContext(
 		s.ctx,
 		`INSERT INTO events (id, title, description, start_at, end_at, user_id, notification_duration, is_notified) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`, //nolint:lll
-		uuid.New(), "aaa", "bbb", startAt, endAt, "ef0d2079-e9a2-4810-8cae-eb6729c50580", 10000, false, //nolint:lll
+		uuid.New(), "aaa", "bbb", startAt, endAt, "ef0d2079-e9a2-4810-8cae-eb6729c50580", 10000, false,
 	)
 	s.Require().NoError(err)
 

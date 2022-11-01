@@ -199,7 +199,7 @@ func run(cfg *config.Config) error {
 
 	closer.CloseAll()
 
-	if err := errgrp.Wait(); err != nil {
+	if err := errgrp.Wait(); err != nil && !errors.Is(err, context.Canceled) {
 		return err
 	}
 

@@ -26,6 +26,11 @@ services:
     build:
       context: ../
       dockerfile: ./build/calendar.Dockerfile
+      args:
+        - CMD_PATH=calendar
+    ports:
+      - "8080:8080"
+      - "8081:8081"
     restart: always
     depends_on:
       - postgres
@@ -40,7 +45,9 @@ services:
     container_name: scheduler
     build:
       context: ../
-      dockerfile: ./build/scheduler.Dockerfile
+      dockerfile: ./build/calendar.Dockerfile
+      args:
+        - CMD_PATH=calendar_scheduler
     restart: always
     depends_on:
       - postgres
@@ -55,7 +62,9 @@ services:
     container_name: sender
     build:
       context: ../
-      dockerfile: ./build/sender.Dockerfile
+      dockerfile: ./build/calendar.Dockerfile
+      args:
+        - CMD_PATH=calendar_sender
     restart: always
     depends_on:
       - postgres

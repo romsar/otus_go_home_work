@@ -49,6 +49,15 @@ func (s Scheduler) Start(ctx context.Context) error {
 	deleteCh := make(chan struct{}, 1)
 
 	go func() {
+		tick := func() {
+			senderCh <- struct{}{}
+			deleteCh <- struct{}{}
+		}
+
+		// init tick
+		tick()
+
+		// ticker tick
 		for {
 			select {
 			case <-ctx.Done():
@@ -56,8 +65,7 @@ func (s Scheduler) Start(ctx context.Context) error {
 			case <-ticker.C:
 			}
 
-			senderCh <- struct{}{}
-			deleteCh <- struct{}{}
+			tick()
 		}
 	}()
 
@@ -67,7 +75,13 @@ func (s Scheduler) Start(ctx context.Context) error {
 	errGrp.Go(func() error {
 		defer cancel()
 
-		fn := func() error {
+		for {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-senderCh:
+			}
+
 			events, err := s.r.FindEvents(ctx, calendar.EventFilter{
 				NotNotified: true,
 				NotifyTime:  true,
@@ -83,24 +97,6 @@ func (s Scheduler) Start(ctx context.Context) error {
 			if err := s.b.SendEventToQueue(ctx, events...); err != nil {
 				return err
 			}
-
-			return nil
-		}
-
-		if err := fn(); err != nil {
-			return err
-		}
-
-		for {
-			select {
-			case <-ctx.Done():
-				return nil
-			case <-senderCh:
-			}
-
-			if err := fn(); err != nil {
-				return err
-			}
 		}
 	})
 
@@ -108,7 +104,13 @@ func (s Scheduler) Start(ctx context.Context) error {
 	errGrp.Go(func() error {
 		defer cancel()
 
-		fn := func() error {
+		for {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-deleteCh:
+			}
+
 			events, err := s.r.FindEvents(ctx, calendar.EventFilter{
 				To: time.Now().AddDate(0, -int(s.cfg.EventLifeInDays), 0),
 			})
@@ -124,24 +126,6 @@ func (s Scheduler) Start(ctx context.Context) error {
 				if err := s.r.DeleteEvent(ctx, e.ID); err != nil {
 					return err
 				}
-			}
-
-			return nil
-		}
-
-		if err := fn(); err != nil {
-			return err
-		}
-
-		for {
-			select {
-			case <-ctx.Done():
-				return nil
-			case <-deleteCh:
-			}
-
-			if err := fn(); err != nil {
-				return err
 			}
 		}
 	})
