@@ -5,24 +5,22 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	json "github.com/json-iterator/go"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
-	"github.com/RomanSarvarov/otus_go_home_work/calendar/kafka"
 )
 
 type Broker interface {
-	WriteMessages(ctx context.Context, msgs ...kafka.Message) error
+	SendEventToQueue(ctx context.Context, events ...*calendar.Event) error
 }
 
-type Model interface {
-	DeleteEvent(ctx context.Context, id uuid.UUID) error
+type Repository interface {
+	DeleteEvent(ctx context.Context, ids ...uuid.UUID) error
 	FindEvents(ctx context.Context, filter calendar.EventFilter) ([]*calendar.Event, error)
 }
 
 type Scheduler struct {
-	m   Model
+	r   Repository
 	b   Broker
 	cfg Config
 }
@@ -32,20 +30,36 @@ type Config struct {
 	EventLifeInDays uint
 }
 
-func New(m Model, b Broker, cfg Config) Scheduler {
+func New(r Repository, b Broker, cfg Config) Scheduler {
 	return Scheduler{
-		m:   m,
+		r:   r,
 		b:   b,
 		cfg: cfg,
 	}
 }
 
 func (s Scheduler) Start(ctx context.Context) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	ticker := time.NewTicker(s.cfg.Interval)
 	defer ticker.Stop()
 
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+	senderCh := make(chan struct{}, 1)
+	deleteCh := make(chan struct{}, 1)
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+			}
+
+			senderCh <- struct{}{}
+			deleteCh <- struct{}{}
+		}
+	}()
 
 	errGrp, ctx := errgroup.WithContext(ctx)
 
@@ -54,7 +68,7 @@ func (s Scheduler) Start(ctx context.Context) error {
 		defer cancel()
 
 		fn := func() error {
-			events, err := s.m.FindEvents(ctx, calendar.EventFilter{
+			events, err := s.r.FindEvents(ctx, calendar.EventFilter{
 				NotNotified: true,
 				NotifyTime:  true,
 			})
@@ -66,19 +80,7 @@ func (s Scheduler) Start(ctx context.Context) error {
 				return nil
 			}
 
-			messages := make([]kafka.Message, 0, len(events))
-			for _, e := range events {
-				bs, err := json.Marshal(e)
-				if err != nil {
-					return err
-				}
-
-				messages = append(messages, kafka.Message{
-					Value: bs,
-				})
-			}
-
-			if err := s.b.WriteMessages(ctx, messages...); err != nil {
+			if err := s.b.SendEventToQueue(ctx, events...); err != nil {
 				return err
 			}
 
@@ -93,13 +95,7 @@ func (s Scheduler) Start(ctx context.Context) error {
 			select {
 			case <-ctx.Done():
 				return nil
-			default:
-			}
-
-			select {
-			case <-ctx.Done():
-				return nil
-			case <-ticker.C:
+			case <-senderCh:
 			}
 
 			if err := fn(); err != nil {
@@ -113,7 +109,7 @@ func (s Scheduler) Start(ctx context.Context) error {
 		defer cancel()
 
 		fn := func() error {
-			events, err := s.m.FindEvents(ctx, calendar.EventFilter{
+			events, err := s.r.FindEvents(ctx, calendar.EventFilter{
 				To: time.Now().AddDate(0, -int(s.cfg.EventLifeInDays), 0),
 			})
 			if err != nil {
@@ -125,7 +121,7 @@ func (s Scheduler) Start(ctx context.Context) error {
 			}
 
 			for _, e := range events {
-				if err := s.m.DeleteEvent(ctx, e.ID); err != nil {
+				if err := s.r.DeleteEvent(ctx, e.ID); err != nil {
 					return err
 				}
 			}
@@ -141,13 +137,7 @@ func (s Scheduler) Start(ctx context.Context) error {
 			select {
 			case <-ctx.Done():
 				return nil
-			default:
-			}
-
-			select {
-			case <-ctx.Done():
-				return nil
-			case <-ticker.C:
+			case <-deleteCh:
 			}
 
 			if err := fn(); err != nil {
@@ -156,9 +146,5 @@ func (s Scheduler) Start(ctx context.Context) error {
 		}
 	})
 
-	if err := errGrp.Wait(); err != nil {
-		return err
-	}
-
-	return nil
+	return errGrp.Wait()
 }

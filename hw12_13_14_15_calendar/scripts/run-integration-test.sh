@@ -7,5 +7,4 @@ docker-compose \
   -p tests \
   --env-file .env \
   up --build \
-  --exit-code-from integration_tests \
-  && echo "tests passed" || echo "tests fail"
+  --exit-code-from integration_tests

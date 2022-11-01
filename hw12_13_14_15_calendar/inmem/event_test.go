@@ -134,22 +134,27 @@ func TestEventStorage_DeleteEvent(t *testing.T) {
 		id := event.ID
 
 		err = repo.DeleteEvent(ctx, id)
-
 		require.NoError(t, err)
 
 		// check storage
 		require.Empty(t, repo.events)
 	})
 
-	t.Run("not found", func(t *testing.T) {
+	t.Run("multiple", func(t *testing.T) {
 		ctx := context.Background()
 		repo := New()
 
-		id := uuid.New()
+		event1, err := repo.CreateEvent(ctx, &calendar.Event{})
+		require.NoError(t, err)
 
-		err := repo.DeleteEvent(ctx, id)
+		event2, err := repo.CreateEvent(ctx, &calendar.Event{})
+		require.NoError(t, err)
 
-		require.ErrorIs(t, err, calendar.ErrNotFound)
+		err = repo.DeleteEvent(ctx, event1.ID, event2.ID)
+		require.NoError(t, err)
+
+		// check storage
+		require.Empty(t, repo.events)
 	})
 }
 
@@ -390,7 +395,7 @@ func TestEventStorage_FindEvents(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				TimeNowFunc = func() time.Time {
+				timeNowFunc = func() time.Time {
 					return mustParseDateTime("2022-05-10 15:30:00")
 				}
 

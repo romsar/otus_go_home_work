@@ -5,7 +5,8 @@ package mocks
 import (
 	context "context"
 
-	kafka "github.com/segmentio/kafka-go"
+	calendar "github.com/RomanSarvarov/otus_go_home_work/calendar"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -14,15 +15,17 @@ type Broker struct {
 	mock.Mock
 }
 
-// ReadMessage provides a mock function with given fields: ctx
-func (_m *Broker) ReadMessage(ctx context.Context) (kafka.Message, error) {
+// ReadEventFromQueue provides a mock function with given fields: ctx
+func (_m *Broker) ReadEventFromQueue(ctx context.Context) (*calendar.Event, error) {
 	ret := _m.Called(ctx)
 
-	var r0 kafka.Message
-	if rf, ok := ret.Get(0).(func(context.Context) kafka.Message); ok {
+	var r0 *calendar.Event
+	if rf, ok := ret.Get(0).(func(context.Context) *calendar.Event); ok {
 		r0 = rf(ctx)
 	} else {
-		r0 = ret.Get(0).(kafka.Message)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*calendar.Event)
+		}
 	}
 
 	var r1 error

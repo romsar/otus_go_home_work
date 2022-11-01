@@ -5,23 +5,21 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	json "github.com/json-iterator/go"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
-	"github.com/RomanSarvarov/otus_go_home_work/calendar/kafka"
 )
 
 type Broker interface {
-	ReadMessage(ctx context.Context) (kafka.Message, error)
+	ReadEventFromQueue(ctx context.Context) (*calendar.Event, error)
 }
 
-type Model interface {
+type Repository interface {
 	UpdateEvent(ctx context.Context, id uuid.UUID, e *calendar.Event) (*calendar.Event, error)
 }
 
 type Sender struct {
-	m   Model
+	r   Repository
 	b   Broker
 	cfg Config
 }
@@ -30,9 +28,9 @@ type Config struct {
 	Threads int
 }
 
-func New(m Model, b Broker, cfg Config) Sender {
+func New(r Repository, b Broker, cfg Config) Sender {
 	return Sender{
-		m:   m,
+		r:   r,
 		b:   b,
 		cfg: cfg,
 	}
@@ -55,13 +53,8 @@ func (s Sender) Start(ctx context.Context) error {
 				default:
 				}
 
-				msg, err := s.b.ReadMessage(ctx)
+				event, err := s.b.ReadEventFromQueue(ctx)
 				if err != nil {
-					return err
-				}
-
-				event := new(calendar.Event)
-				if err := json.Unmarshal(msg.Value, event); err != nil {
 					return err
 				}
 
@@ -70,18 +63,14 @@ func (s Sender) Start(ctx context.Context) error {
 				}
 
 				event.IsNotified = true
-				if _, err := s.m.UpdateEvent(ctx, event.ID, event); err != nil {
+				if _, err := s.r.UpdateEvent(ctx, event.ID, event); err != nil {
 					return err
 				}
 			}
 		})
 	}
 
-	if err := errGrp.Wait(); err != nil {
-		return err
-	}
-
-	return nil
+	return errGrp.Wait()
 }
 
 func sendNotification(e *calendar.Event) error {

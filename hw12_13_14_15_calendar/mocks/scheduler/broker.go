@@ -5,7 +5,8 @@ package mocks
 import (
 	context "context"
 
-	kafka "github.com/segmentio/kafka-go"
+	calendar "github.com/RomanSarvarov/otus_go_home_work/calendar"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -14,11 +15,11 @@ type Broker struct {
 	mock.Mock
 }
 
-// WriteMessages provides a mock function with given fields: ctx, msgs
-func (_m *Broker) WriteMessages(ctx context.Context, msgs ...kafka.Message) error {
-	_va := make([]interface{}, len(msgs))
-	for _i := range msgs {
-		_va[_i] = msgs[_i]
+// SendEventToQueue provides a mock function with given fields: ctx, events
+func (_m *Broker) SendEventToQueue(ctx context.Context, events ...*calendar.Event) error {
+	_va := make([]interface{}, len(events))
+	for _i := range events {
+		_va[_i] = events[_i]
 	}
 	var _ca []interface{}
 	_ca = append(_ca, ctx)
@@ -26,8 +27,8 @@ func (_m *Broker) WriteMessages(ctx context.Context, msgs ...kafka.Message) erro
 	ret := _m.Called(_ca...)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, ...kafka.Message) error); ok {
-		r0 = rf(ctx, msgs...)
+	if rf, ok := ret.Get(0).(func(context.Context, ...*calendar.Event) error); ok {
+		r0 = rf(ctx, events...)
 	} else {
 		r0 = ret.Error(0)
 	}

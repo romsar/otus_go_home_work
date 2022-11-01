@@ -65,11 +65,11 @@ func run(cfg *config.Config) error {
 		Debug().
 		Msg("start application")
 
-	var model sender.Model
+	var repo sender.Repository
 
 	switch cfg.DBDriver {
 	case inmem.Key:
-		model = inmem.New()
+		repo = inmem.New()
 	case postgres.Key:
 		log.
 			Debug().
@@ -83,7 +83,7 @@ func run(cfg *config.Config) error {
 			Database: cfg.PostgreSQL.Database,
 		}
 
-		repo, err := postgres.Open(dbCfg)
+		r, err := postgres.Open(dbCfg)
 		if err != nil {
 			return err
 		}
@@ -93,14 +93,10 @@ func run(cfg *config.Config) error {
 				Debug().
 				Msgf("terminating postgres connection")
 
-			if err := repo.Close(); err != nil {
-				return err
-			}
-
-			return nil
+			return r.Close()
 		})
 
-		model = repo
+		repo = r
 	default:
 		return fmt.Errorf("database driver `%s` not found", cfg.DBDriver)
 	}
@@ -119,7 +115,7 @@ func run(cfg *config.Config) error {
 		return r.Close()
 	})
 
-	s := sender.New(model, r, sender.Config{
+	s := sender.New(repo, r, sender.Config{
 		Threads: cfg.Sender.Threads,
 	})
 

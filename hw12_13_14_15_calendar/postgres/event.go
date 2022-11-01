@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
@@ -58,14 +59,17 @@ func (repo *Repository) UpdateEvent(ctx context.Context, id uuid.UUID, e *calend
 }
 
 // DeleteEvent удалить событие.
-func (repo *Repository) DeleteEvent(ctx context.Context, id uuid.UUID) error {
-	if _, err := repo.findEventByID(ctx, id); err != nil {
-		return errors.Wrap(err, "delete event")
+func (repo *Repository) DeleteEvent(ctx context.Context, ids ...uuid.UUID) error {
+	query, args, err := sqlx.In(`DELETE FROM events WHERE id IN (?)`, ids)
+	if err != nil {
+		return err
 	}
 
-	_, err := repo.db.ExecContext(ctx, `DELETE FROM events WHERE id = $1`, id)
+	query = repo.db.Rebind(query)
+
+	_, err = repo.db.ExecContext(ctx, query, args...)
 	if err != nil {
-		return errors.Wrap(err, "delete event")
+		return errors.Wrap(err, "delete event error")
 	}
 
 	return nil
