@@ -10,11 +10,11 @@ import (
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
 )
 
-var TimeNowFunc func() time.Time
+var timeNowFunc = time.Now
 
 func init() {
-	if TimeNowFunc == nil {
-		TimeNowFunc = time.Now
+	if timeNowFunc == nil {
+		timeNowFunc = time.Now
 	}
 }
 
@@ -54,15 +54,13 @@ func (repo *Repository) UpdateEvent(ctx context.Context, id uuid.UUID, e *calend
 }
 
 // DeleteEvent удаляет событие.
-func (repo *Repository) DeleteEvent(ctx context.Context, id uuid.UUID) error {
-	if _, err := repo.findEventByID(id); err != nil {
-		return errors.Wrap(err, "delete event")
-	}
-
+func (repo *Repository) DeleteEvent(ctx context.Context, ids ...uuid.UUID) error {
 	repo.eventMu.Lock()
 	defer repo.eventMu.Unlock()
 
-	delete(repo.events, id)
+	for _, id := range ids {
+		delete(repo.events, id)
+	}
 
 	return nil
 }
@@ -119,7 +117,7 @@ func passFilter(e *calendar.Event, filter calendar.EventFilter) bool {
 	}
 
 	if filter.NotifyTime {
-		now := TimeNowFunc()
+		now := timeNowFunc()
 
 		if e.StartAt.Before(now) {
 			return false
@@ -150,7 +148,7 @@ func (repo *Repository) checkDateBusy(event *calendar.Event, ID ...uuid.UUID) er
 	if len(ID) > 0 {
 		ignore = ID[0]
 	}
-	
+
 	repo.eventMu.Lock()
 	defer repo.eventMu.Unlock()
 

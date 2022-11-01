@@ -65,11 +65,11 @@ func run(cfg *config.Config) error {
 		Debug().
 		Msg("start application")
 
-	var model scheduler.Model
+	var repo scheduler.Repository
 
 	switch cfg.DBDriver {
 	case inmem.Key:
-		model = inmem.New()
+		repo = inmem.New()
 	case postgres.Key:
 		log.
 			Debug().
@@ -83,7 +83,7 @@ func run(cfg *config.Config) error {
 			Database: cfg.PostgreSQL.Database,
 		}
 
-		repo, err := postgres.Open(dbCfg)
+		r, err := postgres.Open(dbCfg)
 		if err != nil {
 			return err
 		}
@@ -93,27 +93,23 @@ func run(cfg *config.Config) error {
 				Debug().
 				Msgf("terminating postgres connection")
 
-			if err := repo.Close(); err != nil {
-				return err
-			}
-
-			return nil
+			return r.Close()
 		})
 
-		model = repo
+		repo = r
 	default:
 		return fmt.Errorf("database driver `%s` not found", cfg.DBDriver)
 	}
 
 	w := kafka.NewWriter(&kafka.WriterConfig{
-		Addr:  kafka.TCP(cfg.Kafka.Brokers...),
-		Topic: cfg.Kafka.SenderTopic,
+		Brokers: cfg.Kafka.Brokers,
+		Topic:   cfg.Kafka.SenderTopic,
 	})
 	closer.Add(func() error {
 		return w.Close()
 	})
 
-	sch := scheduler.New(model, w, scheduler.Config{
+	sch := scheduler.New(repo, w, scheduler.Config{
 		Interval:        cfg.Scheduler.Interval,
 		EventLifeInDays: cfg.Scheduler.EventLifeInDays,
 	})

@@ -77,11 +77,11 @@ func run(cfg *config.Config) error {
 		Debug().
 		Msg("start application")
 
-	var model calendar.Model
+	var repo calendar.Repository
 
 	switch cfg.DBDriver {
 	case inmem.Key:
-		model = inmem.New()
+		repo = inmem.New()
 	case postgres.Key:
 		log.
 			Debug().
@@ -95,7 +95,7 @@ func run(cfg *config.Config) error {
 			Database: cfg.PostgreSQL.Database,
 		}
 
-		repo, err := postgres.Open(dbCfg)
+		r, err := postgres.Open(dbCfg)
 		if err != nil {
 			return err
 		}
@@ -105,22 +105,18 @@ func run(cfg *config.Config) error {
 				Debug().
 				Msgf("terminating postgres connection")
 
-			if err := repo.Close(); err != nil {
-				return err
-			}
-
-			return nil
+			return r.Close()
 		})
 
 		log.
 			Debug().
 			Msgf("run postgres migrations")
 
-		if err := repo.Up(migrationsDir); err != nil {
+		if err := r.Up(migrationsDir); err != nil {
 			return err
 		}
 
-		model = repo
+		repo = r
 	default:
 		return fmt.Errorf("database driver `%s` not found", cfg.DBDriver)
 	}
@@ -149,7 +145,7 @@ func run(cfg *config.Config) error {
 			Debug().
 			Msgf("starting REST server on: `%s`", cfg.REST.Address)
 
-		err := event.RegisterEventServiceHandlerServer(context.Background(), mux, grpcapi.New(model))
+		err := event.RegisterEventServiceHandlerServer(context.Background(), mux, grpcapi.New(repo))
 		if err != nil {
 			return errors.Wrap(err, "register event service handler server")
 		}
@@ -171,7 +167,7 @@ func run(cfg *config.Config) error {
 		grpczerolog.UnaryInterceptor(),
 	)
 
-	event.RegisterEventServiceServer(grpcSrv, grpcapi.New(model))
+	event.RegisterEventServiceServer(grpcSrv, grpcapi.New(repo))
 
 	closer.Add(func() error {
 		log.
