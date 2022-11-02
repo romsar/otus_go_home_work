@@ -12,12 +12,6 @@ import (
 
 var timeNowFunc = time.Now
 
-func init() {
-	if timeNowFunc == nil {
-		timeNowFunc = time.Now
-	}
-}
-
 // CreateEvent создает событие.
 func (repo *Repository) CreateEvent(ctx context.Context, e *calendar.Event) (*calendar.Event, error) {
 	if err := repo.checkDateBusy(e); err != nil {
