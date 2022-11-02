@@ -36,8 +36,18 @@ run-scheduler:
 run-sender:
 	go run ./cmd/calendar_sender --config=.env
 
+up:
+	cp -n .env.example .env || true
+	docker-compose -f ./deployments/docker-compose.yml --env-file .env -p calendar up -d --build
+
+down:
+	docker-compose -f ./deployments/docker-compose.yml --env-file .env -p calendar stop
+
 test:
 	go test -race -count 10 ./...
+
+integration-tests:
+	sh ./scripts/run-integration-test.sh
 
 install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.41.1

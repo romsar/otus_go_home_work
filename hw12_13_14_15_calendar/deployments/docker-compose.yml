@@ -1,0 +1,101 @@
+version: '3'
+services:
+  calendar:
+    container_name: calendar
+    build:
+      context: ../
+      dockerfile: ./build/calendar.Dockerfile
+      args:
+        - CMD_PATH=calendar
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    restart: always
+    depends_on:
+      - postgres
+      - kafka
+      - zookeeper
+    networks:
+      - calendar
+    command:
+      - "--config=.env"
+
+  scheduler:
+    container_name: scheduler
+    build:
+      context: ../
+      dockerfile: ./build/calendar.Dockerfile
+      args:
+        - CMD_PATH=calendar_scheduler
+    restart: always
+    depends_on:
+      - postgres
+      - kafka
+      - zookeeper
+    networks:
+      - calendar
+    command:
+      - "--config=.env"
+
+  sender:
+    container_name: sender
+    build:
+      context: ../
+      dockerfile: ./build/calendar.Dockerfile
+      args:
+        - CMD_PATH=calendar_sender
+    restart: always
+    depends_on:
+      - postgres
+      - kafka
+      - zookeeper
+    networks:
+      - calendar
+    command:
+      - "--config=.env"
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - '5432:5432'
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    networks:
+      - calendar
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - calendar
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "calendar:1:1"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+    networks:
+      - calendar
+
+volumes:
+  dbdata:
+
+networks:
+  calendar:
+    driver: bridge
