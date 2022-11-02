@@ -8,15 +8,17 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.4.0
+	github.com/json-iterator/go v1.1.12
 	github.com/lib/pq v1.10.6
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/philip-bui/grpc-zerolog v1.0.1
 	github.com/pkg/errors v0.9.1
 	github.com/pressly/goose/v3 v3.7.0
 	github.com/rs/zerolog v1.28.0
+	github.com/segmentio/kafka-go v0.4.35
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.0
-	github.com/vektra/mockery/v2 v2.14.0 // indirect
+	github.com/vektra/mockery/v2 v2.14.0
 	golang.org/x/net v0.0.0-20220907135653-1e95f45603a7 // indirect
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
 	golang.org/x/sys v0.0.0-20220913175220-63ea55921009 // indirect

@@ -1,7 +1,8 @@
-package main
+package config
 
 import (
 	"os"
+	"time"
 
 	env "github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
@@ -23,6 +24,15 @@ type Config struct {
 
 	// PostgreSQL параметры для подключения к PostgreSQL.
 	PostgreSQL PostgreSQLConfig
+
+	// Kafka настройки работы с Kafka.
+	Kafka KafkaConfig
+
+	// Scheduler настройки планировщика.
+	Scheduler SchedulerConfig
+
+	// Sender настройки отправителя.
+	Sender SenderConfig
 
 	// DBDriver декларирует драйвер базы данных.
 	DBDriver string `env:"DB_DRIVER,required"`
@@ -64,13 +74,40 @@ type PostgreSQLConfig struct {
 	Database string `env:"POSTGRES_DB"`
 }
 
+// KafkaConfig предоставляет настройки работы с Kafka.
+type KafkaConfig struct {
+	// GroupID адреса брокеров.
+	Brokers []string `env:"KAFKA_BROKERS" envDefault:"kafka:9092" envSeparator:","`
+
+	// GroupID идентификатор группы.
+	GroupID string `env:"KAFKA_GROUP_ID" envDefault:"calendar"`
+
+	// SenderTopic название топика для планировщика.
+	SenderTopic string `env:"KAFKA_SENDER_TOPIC" envDefault:"calendar-sender-topic"`
+}
+
+// SchedulerConfig предоставляет настройки планировщика.
+type SchedulerConfig struct {
+	// Interval интервал работы планировщика.
+	Interval time.Duration `env:"SCHEDULER_INTERVAL" envDefault:"1m"`
+
+	// EventLifeInDays количество дней, после истечения которых удалять событие.
+	EventLifeInDays uint `env:"SCHEDULER_EVENT_LIFE_IN_DAYS" envDefault:"365"`
+}
+
+// SenderConfig предоставляет настройки отправителя.
+type SenderConfig struct {
+	// Threads количество потоков (консьюмеров).
+	Threads int `env:"SENDER_THREADS" envDefault:"3"`
+}
+
 // NewConfig создает новый конфиг.
 func NewConfig() *Config {
 	return &Config{}
 }
 
-// LoadConfig создает конфиг на основании переменных окружения.
-func loadConfig(path string) (*Config, error) {
+// Load создает конфиг на основании переменных окружения.
+func Load(path string) (*Config, error) {
 	returnErrIfFileNotExists := path != ""
 
 	path = pathOrDefault(path)

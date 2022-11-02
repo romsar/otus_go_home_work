@@ -6,8 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// Model декларирует контракт модели.
-type Model interface {
+// Repository декларирует контракт репозитория.
+type Repository interface {
 	// CreateEvent создать событие.
 	CreateEvent(ctx context.Context, e *Event) (*Event, error)
 
@@ -15,7 +15,7 @@ type Model interface {
 	UpdateEvent(ctx context.Context, id uuid.UUID, e *Event) (*Event, error)
 
 	// DeleteEvent удалить событие.
-	DeleteEvent(ctx context.Context, id uuid.UUID) error
+	DeleteEvent(ctx context.Context, ids ...uuid.UUID) error
 
 	// FindEvents найти множество событий.
 	FindEvents(ctx context.Context, filter EventFilter) ([]*Event, error)

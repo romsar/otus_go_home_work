@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
@@ -23,8 +25,8 @@ func (repo *Repository) CreateEvent(ctx context.Context, e *calendar.Event) (*ca
 	event := new(calendar.Event)
 	err := repo.db.QueryRowxContext(
 		ctx,
-		`INSERT INTO events (id, title, description, start_at, end_at, user_id, notification_duration) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`, //nolint:lll
-		e.ID, e.Title, e.Description, e.StartAt, e.EndAt, e.UserID, e.NotificationDuration,
+		`INSERT INTO events (id, title, description, start_at, end_at, user_id, notification_duration, is_notified) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;`, //nolint:lll
+		e.ID, e.Title, e.Description, e.StartAt, e.EndAt, e.UserID, e.NotificationDuration, e.IsNotified,
 	).StructScan(event)
 	if err != nil {
 		return nil, errors.Wrap(err, "create event")
@@ -46,8 +48,8 @@ func (repo *Repository) UpdateEvent(ctx context.Context, id uuid.UUID, e *calend
 	event := new(calendar.Event)
 	err := repo.db.QueryRowxContext(
 		ctx,
-		`UPDATE events SET title = $1, description = $2, start_at = $3, end_at = $4, user_id = $5, notification_duration = $6 WHERE id = $7 RETURNING *;`, //nolint:lll
-		e.Title, e.Description, e.StartAt, e.EndAt, e.UserID, e.NotificationDuration, id,
+		`UPDATE events SET title = $1, description = $2, start_at = $3, end_at = $4, user_id = $5, notification_duration = $6, is_notified = $7 WHERE id = $8 RETURNING *;`, //nolint:lll
+		e.Title, e.Description, e.StartAt, e.EndAt, e.UserID, e.NotificationDuration, e.IsNotified, id,
 	).StructScan(event)
 	if err != nil {
 		return nil, errors.Wrap(err, "update event")
@@ -57,14 +59,17 @@ func (repo *Repository) UpdateEvent(ctx context.Context, id uuid.UUID, e *calend
 }
 
 // DeleteEvent удалить событие.
-func (repo *Repository) DeleteEvent(ctx context.Context, id uuid.UUID) error {
-	if _, err := repo.findEventByID(ctx, id); err != nil {
-		return errors.Wrap(err, "delete event")
+func (repo *Repository) DeleteEvent(ctx context.Context, ids ...uuid.UUID) error {
+	query, args, err := sqlx.In(`DELETE FROM events WHERE id IN (?)`, ids)
+	if err != nil {
+		return err
 	}
 
-	_, err := repo.db.ExecContext(ctx, `DELETE FROM events WHERE id = $1`, id)
+	query = repo.db.Rebind(query)
+
+	_, err = repo.db.ExecContext(ctx, query, args...)
 	if err != nil {
-		return errors.Wrap(err, "delete event")
+		return errors.Wrap(err, "delete event error")
 	}
 
 	return nil
@@ -73,6 +78,30 @@ func (repo *Repository) DeleteEvent(ctx context.Context, id uuid.UUID) error {
 // FindEvents найти множество событий.
 func (repo *Repository) FindEvents(ctx context.Context, filter calendar.EventFilter) ([]*calendar.Event, error) {
 	where, args, counter := []string{"1 = 1"}, []interface{}{}, 1
+
+	if filter.UserID != uuid.Nil {
+		where, args = append(where, "user_id = $"+strconv.Itoa(counter)), append(args, filter.UserID)
+		counter++
+	}
+
+	if filter.NotNotified {
+		where, args = append(where, "is_notified = $"+strconv.Itoa(counter)), append(args, false)
+		counter++
+	}
+
+	if filter.NotifyTime {
+		now := time.Now()
+
+		where, args = append(where, "start_at >= $"+strconv.Itoa(counter)), append(args, now)
+		counter++
+
+		where, args = append(
+			where,
+			"start_at - (notification_duration * interval '1 minute') <= $"+strconv.Itoa(counter),
+		),
+			append(args, now)
+		counter++
+	}
 
 	if filter.UserID != uuid.Nil {
 		where, args = append(where, "user_id = $"+strconv.Itoa(counter)), append(args, filter.UserID)

@@ -1,7 +1,8 @@
-package main
+package config
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -44,6 +45,18 @@ func Test_loadConfig(t *testing.T) {
 					Password: "",
 					Database: "",
 				},
+				Kafka: KafkaConfig{
+					Brokers:     []string{"kafka:9092"},
+					GroupID:     "calendar",
+					SenderTopic: "calendar-sender-topic",
+				},
+				Scheduler: SchedulerConfig{
+					Interval:        1 * time.Minute,
+					EventLifeInDays: 365,
+				},
+				Sender: SenderConfig{
+					Threads: 3,
+				},
 			},
 		},
 	}
@@ -56,7 +69,7 @@ func Test_loadConfig(t *testing.T) {
 				t.Setenv(key, val)
 			}
 
-			got, err := loadConfig(tt.args.path)
+			got, err := Load(tt.args.path)
 			require.NoError(t, err)
 			require.Equal(t, tt.want, got)
 		})

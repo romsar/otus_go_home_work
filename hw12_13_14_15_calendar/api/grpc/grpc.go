@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
@@ -15,13 +16,13 @@ import (
 )
 
 type Server struct {
-	m calendar.Model
+	r calendar.Repository
 	event.UnimplementedEventServiceServer
 }
 
-func New(m calendar.Model) *Server {
+func New(r calendar.Repository) *Server {
 	return &Server{
-		m: m,
+		r: r,
 	}
 }
 
@@ -33,7 +34,7 @@ func (s *Server) CreateEventV1(ctx context.Context, req *event.CreateEventReques
 		return nil, status.Error(codes.InvalidArgument, "invalid user id")
 	}
 
-	e, err := s.m.CreateEvent(ctx, &calendar.Event{
+	e, err := s.r.CreateEvent(ctx, &calendar.Event{
 		Title:                req.GetTitle(),
 		Description:          req.GetDescription(),
 		StartAt:              time.Unix(req.GetStartAt(), 0),
@@ -73,7 +74,7 @@ func (s *Server) UpdateEventV1(ctx context.Context, req *event.UpdateEventReques
 		return nil, status.Error(codes.InvalidArgument, "invalid uuid")
 	}
 
-	e, err := s.m.UpdateEvent(ctx, ID, &calendar.Event{
+	e, err := s.r.UpdateEvent(ctx, ID, &calendar.Event{
 		Title:                req.GetTitle(),
 		Description:          req.GetDescription(),
 		StartAt:              time.Unix(req.GetStartAt(), 0),
@@ -108,7 +109,7 @@ func (s *Server) DeleteEventV1(ctx context.Context, req *event.DeleteEventReques
 		return nil, status.Error(codes.InvalidArgument, "invalid uuid")
 	}
 
-	if err := s.m.DeleteEvent(ctx, ID); err != nil {
+	if err := s.r.DeleteEvent(ctx, ID); err != nil {
 		return nil, status.Error(codes.Unavailable, err.Error())
 	}
 
@@ -133,7 +134,7 @@ func (s *Server) GetEventsForDayV1(ctx context.Context, req *event.GetEventsForD
 	from := time.Date(year, month, day, 0, 0, 0, 0, date.UTC().Location())
 	to := time.Date(nYear, nMonth, nDay, 0, 0, 0, 0, nextDay.UTC().Location())
 
-	events, err := s.m.FindEvents(ctx, calendar.EventFilter{
+	events, err := s.r.FindEvents(ctx, calendar.EventFilter{
 		UserID: userID,
 		From:   from,
 		To:     to,
@@ -179,7 +180,7 @@ func (s *Server) GetEventsForWeekV1(ctx context.Context, req *event.GetEventsFor
 	from := time.Date(year, month, day, 0, 0, 0, 0, date.UTC().Location())
 	to := time.Date(nYear, nMonth, nDay, 0, 0, 0, 0, nextWeek.UTC().Location())
 
-	events, err := s.m.FindEvents(ctx, calendar.EventFilter{
+	events, err := s.r.FindEvents(ctx, calendar.EventFilter{
 		UserID: userID,
 		From:   from,
 		To:     to,
@@ -225,7 +226,7 @@ func (s *Server) GetEventsForMonthV1(ctx context.Context, req *event.GetEventsFo
 	from := time.Date(year, month, day, 0, 0, 0, 0, date.UTC().Location())
 	to := time.Date(nYear, nMonth, nDay, 0, 0, 0, 0, nextMonth.UTC().Location())
 
-	events, err := s.m.FindEvents(ctx, calendar.EventFilter{
+	events, err := s.r.FindEvents(ctx, calendar.EventFilter{
 		UserID: userID,
 		From:   from,
 		To:     to,

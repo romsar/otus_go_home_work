@@ -3,35 +3,23 @@ package main
 import (
 	"context"
 	"fmt"
-	"net"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	grpczerolog "github.com/philip-bui/grpc-zerolog"
-	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/rs/zerolog/log"
 	flag "github.com/spf13/pflag"
 
-	"google.golang.org/grpc"
-
-	"github.com/RomanSarvarov/otus_go_home_work/calendar"
-	grpcapi "github.com/RomanSarvarov/otus_go_home_work/calendar/api/grpc"
-	"github.com/RomanSarvarov/otus_go_home_work/calendar/api/rest"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/config"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/inmem"
+	"github.com/RomanSarvarov/otus_go_home_work/calendar/kafka"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/pkg/closer"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/pkg/logging"
 	"github.com/RomanSarvarov/otus_go_home_work/calendar/postgres"
-	"github.com/RomanSarvarov/otus_go_home_work/calendar/proto/event"
+	"github.com/RomanSarvarov/otus_go_home_work/calendar/scheduler"
 )
-
-// migrationsDir определяет местонахождение миграций.
-const migrationsDir = "migrations"
 
 func main() {
 	logging.InitLogger()
@@ -77,7 +65,7 @@ func run(cfg *config.Config) error {
 		Debug().
 		Msg("start application")
 
-	var repo calendar.Repository
+	var repo scheduler.Repository
 
 	switch cfg.DBDriver {
 	case inmem.Key:
@@ -108,87 +96,30 @@ func run(cfg *config.Config) error {
 			return r.Close()
 		})
 
-		log.
-			Debug().
-			Msgf("run postgres migrations")
-
-		if err := r.Up(migrationsDir); err != nil {
-			return err
-		}
-
 		repo = r
 	default:
 		return fmt.Errorf("database driver `%s` not found", cfg.DBDriver)
 	}
 
-	// Start REST.
-	mux := runtime.NewServeMux()
-	restSrv := &http.Server{
-		Addr:    cfg.REST.Address,
-		Handler: rest.LoggingMiddleware(mux),
-	}
-
+	w := kafka.NewWriter(&kafka.WriterConfig{
+		Brokers: cfg.Kafka.Brokers,
+		Topic:   cfg.Kafka.SenderTopic,
+	})
 	closer.Add(func() error {
-		log.
-			Debug().
-			Msgf("terminating REST server")
+		return w.Close()
+	})
 
-		if err := restSrv.Close(); err != nil && !errors.Is(err, context.Canceled) {
-			return err
-		}
-
-		return nil
+	sch := scheduler.New(repo, w, scheduler.Config{
+		Interval:        cfg.Scheduler.Interval,
+		EventLifeInDays: cfg.Scheduler.EventLifeInDays,
 	})
 
 	errgrp.Go(func() error {
 		log.
 			Debug().
-			Msgf("starting REST server on: `%s`", cfg.REST.Address)
+			Msgf("start scheduler")
 
-		err := event.RegisterEventServiceHandlerServer(context.Background(), mux, grpcapi.New(repo))
-		if err != nil {
-			return errors.Wrap(err, "register event service handler server")
-		}
-
-		err = restSrv.ListenAndServe()
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			return err
-		}
-		return nil
-	})
-
-	// Start GRPC.
-	lis, err := net.Listen("tcp", cfg.GRPC.Address)
-	if err != nil {
-		return errors.Wrap(err, "listen tcp for grpc")
-	}
-
-	grpcSrv := grpc.NewServer(
-		grpczerolog.UnaryInterceptor(),
-	)
-
-	event.RegisterEventServiceServer(grpcSrv, grpcapi.New(repo))
-
-	closer.Add(func() error {
-		log.
-			Debug().
-			Msgf("terminating GRPC server")
-
-		grpcSrv.GracefulStop()
-
-		return nil
-	})
-
-	errgrp.Go(func() error {
-		log.
-			Debug().
-			Msgf("starting GRPC server on: `%s`", cfg.GRPC.Address)
-
-		err := grpcSrv.Serve(lis)
-		if err != nil && !errors.Is(err, grpc.ErrServerStopped) {
-			return err
-		}
-		return nil
+		return sch.Start(ctx)
 	})
 
 	<-ctx.Done()

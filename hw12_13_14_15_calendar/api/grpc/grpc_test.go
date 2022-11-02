@@ -17,7 +17,7 @@ import (
 
 func TestServer_CreateEventV1(t *testing.T) {
 	t.Run("base test", func(t *testing.T) {
-		m := mocks.NewModel(t)
+		m := mocks.NewRepository(t)
 		defer m.AssertExpectations(t)
 
 		req := &event.CreateEventRequestV1{
@@ -46,7 +46,7 @@ func TestServer_CreateEventV1(t *testing.T) {
 			NotificationDuration: 30,
 		}, nil).Once()
 
-		s := Server{m: m}
+		s := Server{r: m}
 		got, err := s.CreateEventV1(context.Background(), req)
 
 		require.NoError(t, err)
@@ -66,7 +66,7 @@ func TestServer_CreateEventV1(t *testing.T) {
 
 func TestServer_UpdateEventV1(t *testing.T) {
 	t.Run("base test", func(t *testing.T) {
-		m := mocks.NewModel(t)
+		m := mocks.NewRepository(t)
 		defer m.AssertExpectations(t)
 
 		req := &event.UpdateEventRequestV1{
@@ -96,7 +96,7 @@ func TestServer_UpdateEventV1(t *testing.T) {
 			NotificationDuration: 30,
 		}, nil).Once()
 
-		s := Server{m: m}
+		s := Server{r: m}
 		got, err := s.UpdateEventV1(context.Background(), req)
 
 		require.NoError(t, err)
@@ -116,7 +116,7 @@ func TestServer_UpdateEventV1(t *testing.T) {
 
 func TestServer_DeleteEventV1(t *testing.T) {
 	t.Run("base test", func(t *testing.T) {
-		m := mocks.NewModel(t)
+		m := mocks.NewRepository(t)
 		defer m.AssertExpectations(t)
 
 		req := &event.DeleteEventRequestV1{
@@ -127,7 +127,7 @@ func TestServer_DeleteEventV1(t *testing.T) {
 			Return(nil).
 			Once()
 
-		s := Server{m: m}
+		s := Server{r: m}
 		got, err := s.DeleteEventV1(context.Background(), req)
 
 		require.NoError(t, err)
@@ -137,7 +137,7 @@ func TestServer_DeleteEventV1(t *testing.T) {
 
 func TestServer_GetEventsForDayV1(t *testing.T) {
 	t.Run("base test", func(t *testing.T) {
-		m := mocks.NewModel(t)
+		m := mocks.NewRepository(t)
 		defer m.AssertExpectations(t)
 
 		req := &event.GetEventsForDayRequestV1{
@@ -157,7 +157,7 @@ func TestServer_GetEventsForDayV1(t *testing.T) {
 			},
 		}, nil).Once()
 
-		s := Server{m: m}
+		s := Server{r: m}
 		got, err := s.GetEventsForDayV1(context.Background(), req)
 
 		require.NoError(t, err)
@@ -179,7 +179,7 @@ func TestServer_GetEventsForDayV1(t *testing.T) {
 
 func TestServer_GetEventsForWeekV1(t *testing.T) {
 	t.Run("base test", func(t *testing.T) {
-		m := mocks.NewModel(t)
+		m := mocks.NewRepository(t)
 		defer m.AssertExpectations(t)
 
 		req := &event.GetEventsForWeekRequestV1{
@@ -199,7 +199,7 @@ func TestServer_GetEventsForWeekV1(t *testing.T) {
 			},
 		}, nil).Once()
 
-		s := Server{m: m}
+		s := Server{r: m}
 		got, err := s.GetEventsForWeekV1(context.Background(), req)
 
 		require.NoError(t, err)
@@ -221,7 +221,7 @@ func TestServer_GetEventsForWeekV1(t *testing.T) {
 
 func TestServer_GetEventsForMonthV1(t *testing.T) {
 	t.Run("base test", func(t *testing.T) {
-		m := mocks.NewModel(t)
+		m := mocks.NewRepository(t)
 		defer m.AssertExpectations(t)
 
 		req := &event.GetEventsForMonthRequestV1{
@@ -241,7 +241,7 @@ func TestServer_GetEventsForMonthV1(t *testing.T) {
 			},
 		}, nil).Once()
 
-		s := Server{m: m}
+		s := Server{r: m}
 		got, err := s.GetEventsForMonthV1(context.Background(), req)
 
 		require.NoError(t, err)

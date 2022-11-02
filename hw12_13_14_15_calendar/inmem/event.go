@@ -2,12 +2,15 @@ package inmem
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/RomanSarvarov/otus_go_home_work/calendar"
 )
+
+var timeNowFunc = time.Now
 
 // CreateEvent создает событие.
 func (repo *Repository) CreateEvent(ctx context.Context, e *calendar.Event) (*calendar.Event, error) {
@@ -45,15 +48,13 @@ func (repo *Repository) UpdateEvent(ctx context.Context, id uuid.UUID, e *calend
 }
 
 // DeleteEvent удаляет событие.
-func (repo *Repository) DeleteEvent(ctx context.Context, id uuid.UUID) error {
-	if _, err := repo.findEventByID(id); err != nil {
-		return errors.Wrap(err, "delete event")
-	}
-
+func (repo *Repository) DeleteEvent(ctx context.Context, ids ...uuid.UUID) error {
 	repo.eventMu.Lock()
 	defer repo.eventMu.Unlock()
 
-	delete(repo.events, id)
+	for _, id := range ids {
+		delete(repo.events, id)
+	}
 
 	return nil
 }
@@ -105,6 +106,24 @@ func passFilter(e *calendar.Event, filter calendar.EventFilter) bool {
 		return false
 	}
 
+	if filter.NotNotified && e.IsNotified {
+		return false
+	}
+
+	if filter.NotifyTime {
+		now := timeNowFunc()
+
+		if e.StartAt.Before(now) {
+			return false
+		}
+
+		notifyAt := e.StartAt.Add(-time.Duration(int64(e.NotificationDuration)) * time.Minute)
+
+		if now.Before(notifyAt) {
+			return false
+		}
+	}
+
 	if !filter.From.IsZero() && e.StartAt.Before(filter.From) {
 		return false
 	}
@@ -123,7 +142,7 @@ func (repo *Repository) checkDateBusy(event *calendar.Event, ID ...uuid.UUID) er
 	if len(ID) > 0 {
 		ignore = ID[0]
 	}
-	
+
 	repo.eventMu.Lock()
 	defer repo.eventMu.Unlock()
 
